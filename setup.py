@@ -4,7 +4,7 @@ setup(
 
     name='xbob.paper.tpami2013',
     version='0.0.1a0',
-    description='PLDA example',
+    description='Example on how to use the scalable implementation of PLDA and how to reproduce experiments of the article',
     url='http://pypi.python.org/pypi/xbob.paper.tpami2013',
     license='GPLv3',
     author='Laurent El Shafey',

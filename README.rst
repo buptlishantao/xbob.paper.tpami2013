@@ -101,7 +101,7 @@ tasks:
   1. Train a PLDA model using the first two classes of the dataset
   2. Enrol a class-specific PLDA model for the third class of the dataset
   3. Compute (verification) scores for both positive and negative samples
-  4. Plot the distribution of the score and save it into a file called iris.png
+  4. Plot the distribution of the score and save it into a file
 
 To run this simple example, you just need to execute the following command::
 
@@ -116,7 +116,7 @@ Getting the data
 
 You first need to buy and download the Multi-PIE database:
   http://multipie.org/
-as well as the annotations available here:
+and to download the annotations available here:
   http://www.idiap.ch/resource/biometric/
 
 

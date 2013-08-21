@@ -157,15 +157,16 @@ def main():
       subprocess.call(cmd_scores)
 
   # Concatenates the scores
-  cmd_cat = [ 
-              './bin/concatenate_scores.py', 
-              '--config-file=%s' % args.config_file, 
-              '--protocol=%s' % config.protocol,
-              '--output-dir=%s' % output_dir,
-              '--grid'
-            ]
-  job_cat = submit(jm, cmd_cat, dependencies=job_scores, array=None)
-  print 'submitted:', job_cat
+  if args.grid:
+    cmd_cat = [ 
+                './bin/concatenate_scores.py', 
+                '--config-file=%s' % args.config_file, 
+                '--protocol=%s' % config.protocol,
+                '--output-dir=%s' % output_dir,
+                '--grid'
+              ]
+    job_cat = submit(jm, cmd_cat, dependencies=job_scores, array=None)
+    print 'submitted:', job_cat
 
 if __name__ == '__main__':
   main()

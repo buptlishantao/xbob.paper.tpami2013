@@ -91,7 +91,7 @@ def main():
     (probe_tests, probe_client_ids) = utils.load_probes(probe_filenames, features_projected_dir, config.features_projected_ext)
 
     # Loads the client model
-    model_path = os.path.join(args.output_dir, config.protocol, config.models_dir, str(model_id) + ".hdf5")
+    model_path = os.path.join(args.output_dir, config.protocol, plda_dir_, config.models_dir, str(model_id) + ".hdf5")
     machine = plda.load_model(model_path, pldabase)
 
     # Computes the scores of all the probes against the model and put them in A
@@ -99,11 +99,11 @@ def main():
 
     if args.grid:
       # Saves model_scores to text file
-      sc_nonorm_filename = os.path.join(args.output_dir, config.protocol, config.scores_nonorm_dir, 
+      sc_nonorm_filename = os.path.join(args.output_dir, config.protocol, plda_dir_, config.scores_nonorm_dir, 
         args.group, str(model_id) + "_" + str(probes_split_id).zfill(4) + ".txt")
       utils.save_scores_to_textfile(A, probe_filenames, model_id, sc_nonorm_filename)
     else:
-      sc_nonorm_filename = os.path.join(args.output_dir, config.protocol, config.scores_nonorm_dir, "scores-" + args.group)
+      sc_nonorm_filename = os.path.join(args.output_dir, config.protocol, plda_dir_, config.scores_nonorm_dir, "scores-" + args.group)
       utils.save_scores_to_textfile(A, probe_filenames, model_id, sc_nonorm_filename, True)
 
 if __name__ == "__main__": 

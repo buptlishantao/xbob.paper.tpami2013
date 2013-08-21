@@ -68,7 +68,7 @@ def main():
   print("Enroling PLDA models...")
   for model_id in models_ids:
     # Path to the model
-    model_path = os.path.join(args.output_dir, config.protocol, config.models_dir, str(model_id) + ".hdf5")
+    model_path = os.path.join(args.output_dir, config.protocol, plda_dir_, config.models_dir, str(model_id) + ".hdf5")
 
     # Remove old file if required
     if args.force:

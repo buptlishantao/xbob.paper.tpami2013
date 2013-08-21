@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
 # Laurent El Shafey <Laurent.El-Shafey@idiap.ch>
+# Wed Aug 21 16:58:03 CEST 2013
+#
+# Copyright (C) 2011-2013 Idiap Research Institute, Martigny, Switzerland
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,28 +28,35 @@ def main():
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,
       dest='config_file', default='xbob/paper/tpami2013/config.py', help='Filename of the configuration file to use to run the script on the grid (defaults to "%(default)s")')
+  parser.add_argument('-g', '--group', metavar='LIST', type=list,
+      dest='group', default=['dev','eval'], help='Database group (\'dev\' or \'eval\') for which to retrieve models (defaults to "%(default)s").')
   parser.add_argument('--output-dir', metavar='FILE', type=str,
       dest='output_dir', default='/idiap/temp/lelshafey/plda-multipie', help='The base output directory for everything (models, scores, etc.).')
+  parser.add_argument('--plda-dir', metavar='STR', type=str,
+      dest='plda_dir', default=None, help='The subdirectory where the PLDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('--grid', dest='grid', action='store_true',
       default=False, help='If set, assumes it is being run using a parametric grid job. It orders all ids to be processed and picks the one at the position given by ${SGE_TASK_ID}-1')
   args = parser.parse_args()
 
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
+  if args.plda_dir: plda_dir = args.plda_dir
+  else: plda_dir = config.plda_dir
+  lgroups = args.groups
 
   N_MAX_SPLITS = 9999 # zfill is done with 4 zeros
-  for group in ['dev','eval']:
+  for group in lgroups:
     # (sorted) list of models
     models_ids = sorted([model.id for model in config.db.models(protocol=config.protocol, groups=group)])
 
-    sc_nonorm_filename = os.path.join(args.output_dir, config.protocol, config.scores_nonorm_dir, "scores-" + group)
+    sc_nonorm_filename = os.path.join(args.output_dir, config.protocol, config.plda_dir, config.scores_nonorm_dir, "scores-" + group)
     utils.erase_if_exists(sc_nonorm_filename)
     f = open(sc_nonorm_filename, 'w')
     # Concatenates the scores
     for model_id in models_ids:
       for split_id in range(0,N_MAX_SPLITS): 
         # Loads and concatenates
-        split_path = os.path.join(args.output_dir, config.protocol, config.scores_nonorm_dir, group, str(model_id) + "_" + str(split_id).zfill(4) + ".txt")
+        split_path = os.path.join(args.output_dir, config.protocol, config.plda_dir, config.scores_nonorm_dir, group, str(model_id) + "_" + str(split_id).zfill(4) + ".txt")
         if split_id == 0 and not os.path.exists(split_path):
           raise RuntimeError("Cannot find file %s" % split_path)
         elif not os.path.exists(split_path):

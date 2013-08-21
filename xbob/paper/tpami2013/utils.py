@@ -46,6 +46,12 @@ def erase_if_exists(filename):
       else: raise
 
 
+def check_string(var):
+  """Make sure that the passed argument is a tuple or a list"""
+  from six import string_types
+  return isinstance(var, string_types)
+
+
 def load_data(filenames, features_dir, features_ext):
   """Loads the data (arrays) from a list of filenames, and put them in a
      2D NumPy array."""

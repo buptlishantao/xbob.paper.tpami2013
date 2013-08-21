@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
 # Laurent El Shafey <Laurent.El-Shafey@idiap.ch>
+# Wed Aug 21 16:56:36 CEST 2013
+#
+# Copyright (C) 2011-2013 Idiap Research Institute, Martigny, Switzerland
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +29,7 @@ def main():
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,
       dest='config_file', default='xbob/paper/tpami2013/config.py', help='Filename of the configuration file to use to run the script on the grid (defaults to "%(default)s")')
-  parser.add_argument('-g', '--group', metavar='STR', type=list, nargs='+',
+  parser.add_argument('-g', '--group', metavar='LIST', type=str, nargs='+',
       dest='group', default=['dev','eval'], help='Database group (\'dev\' or \'eval\') for which to retrieve models.')
   parser.add_argument('--output-dir', metavar='FILE', type=str,
       dest='output_dir', default='/idiap/temp/lelshafey/plda-multipie', help='The base output directory for everything (models, scores, etc.).')
@@ -50,9 +53,11 @@ def main():
   if args.plda_dir: plda_dir_ = args.plda_dir
   else: plda_dir_ = config.plda_dir
   plda_model_filename = os.path.join(args.output_dir, config.protocol, plda_dir_, config.plda_model_filename)
+  if utils.check_string(args.group): groups = [args.group]
+  else: groups = args.group
 
   # (sorted) list of models
-  models_ids = sorted([model.id for model in config.db.models(protocol=config.protocol, groups=args.group)])
+  models_ids = sorted([model.id for model in config.db.models(protocol=config.protocol, groups=groups)])
 
   # finally, if we are on a grid environment, just find what I have to process.
   if args.grid:

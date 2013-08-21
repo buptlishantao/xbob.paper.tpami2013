@@ -152,7 +152,7 @@ def main():
     if args.grid: 
       deps = job_models
       deps.append(job_pldabase.id())
-      job_scores_int = submit(jm, cmd_scores, dependencies=deps, array=array=(1,n_array_jobs,1), queue='q1d', memfree='3G', hostname='!cicatrix')
+      job_scores_int = submit(jm, cmd_scores, dependencies=deps, array=(1,n_array_jobs,1), queue='q1d', memfree='3G', hostname='!cicatrix')
       job_scores.append(job_scores_int.id())
       print 'submitted:', job_scores_int
     else:

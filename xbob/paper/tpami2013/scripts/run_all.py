@@ -104,8 +104,9 @@ def main():
   if args.force: cmd_pldabase.append('--force')
   if args.grid: 
     job_pldabase = submit(jm, cmd_pldabase, dependencies=[], array=None, queue='q1d', memfree='3G', hostname='!beaufix&!cicatrix')
-    print 'submitted:', job_pldabase
+    print('submitted:', job_pldabase)
   else:
+    print('Running PLDA training...')
     subprocess.call(cmd_pldabase)
 
   # Generates the models 
@@ -125,8 +126,9 @@ def main():
     if args.grid: 
       job_models_int = submit(jm, cmd_models, dependencies=[job_pldabase.id()], array=None, queue='q1d', memfree='3G', hostname='!beaufix&!cicatrix')
       job_models.append(job_models_int.id())
-      print 'submitted:', job_models_int
+      print('submitted:', job_models_int)
     else:
+      print('Running PLDA enrollment for %s...' % group)
       subprocess.call(cmd_models)
 
   # Compute raw scores (and A matrix for ZT-Norm)
@@ -154,6 +156,7 @@ def main():
       job_scores.append(job_scores_int.id())
       print 'submitted:', job_scores_int
     else:
+      print('Running PLDA scoring for %s...' % group)
       subprocess.call(cmd_scores)
 
   # Concatenates the scores
@@ -166,7 +169,7 @@ def main():
                 '--grid'
               ]
     job_cat = submit(jm, cmd_cat, dependencies=job_scores, array=None)
-    print 'submitted:', job_cat
+    print('submitted:', job_cat)
 
 if __name__ == '__main__':
   main()

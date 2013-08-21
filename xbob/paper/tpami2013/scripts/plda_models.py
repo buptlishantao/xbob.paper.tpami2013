@@ -59,13 +59,6 @@ def main():
   # (sorted) list of models
   models_ids = sorted([model.id for model in config.db.models(protocol=config.protocol, groups=groups)])
 
-  # finally, if we are on a grid environment, just find what I have to process.
-  if args.grid:
-    pos = int(os.environ['SGE_TASK_ID']) - 1
-    if pos >= len(models_ids):
-      raise RuntimeError("Grid request for job %d on a setup with %d jobs" % (pos, len(models_ids)))
-    models_ids = [models_ids[pos]]
-
   # Loads the PLDABase 
   pldabase = plda.load_base_model(plda_model_filename)
 

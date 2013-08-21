@@ -104,7 +104,7 @@ def main():
   if args.force: cmd_pldabase.append('--force')
   if args.grid: 
     job_pldabase = submit(jm, cmd_pldabase, dependencies=[], array=None, queue='q1d', memfree='3G', hostname='!cicatrix')
-    print('submitted:', job_pldabase)
+    print('submitted: %s' % job_pldabase)
   else:
     print('Running PLDA training...')
     subprocess.call(cmd_pldabase)
@@ -121,12 +121,12 @@ def main():
                   '--pca-dir=%s' % pca_dir,
                   '--plda-dir=%s' % plda_dir,
                   ]
-    if args.force: cmd_pldabase.append('--force')
-    if args.grid: cmd_pldabase.append('--grid')
+    if args.force: cmd_models.append('--force')
+    if args.grid: cmd_models.append('--grid')
     if args.grid: 
       job_models_int = submit(jm, cmd_models, dependencies=[job_pldabase.id()], array=None, queue='q1d', memfree='3G', hostname='!cicatrix')
       job_models.append(job_models_int.id())
-      print('submitted:', job_models_int)
+      print('submitted: %s' % job_models_int)
     else:
       print('Running PLDA enrollment for %s...' % group)
       subprocess.call(cmd_models)
@@ -148,13 +148,12 @@ def main():
                   '--pca-dir=%s' % pca_dir,
                   '--plda-dir=%s' % plda_dir,
                   ]
-    if args.grid: cmd_pldabase.append('--grid')
+    if args.grid: cmd_scores.append('--grid')
     if args.grid: 
       deps = job_models
-      deps.append(job_pldabase.id())
       job_scores_int = submit(jm, cmd_scores, dependencies=deps, array=(1,n_array_jobs,1), queue='q1d', memfree='3G', hostname='!cicatrix')
       job_scores.append(job_scores_int.id())
-      print 'submitted:', job_scores_int
+      print('submitted: %s' % job_scores_int)
     else:
       print('Running PLDA scoring for %s...' % group)
       subprocess.call(cmd_scores)
@@ -169,7 +168,7 @@ def main():
                 '--grid'
               ]
     job_cat = submit(jm, cmd_cat, dependencies=job_scores, array=None)
-    print('submitted:', job_cat)
+    print('submitted: %s' % job_cat)
 
 if __name__ == '__main__':
   main()

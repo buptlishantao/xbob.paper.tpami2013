@@ -17,6 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import math
 import numpy
 import bob
 
@@ -93,19 +94,9 @@ def save_machine(machine, output_filename):
 def split_list(input_list, nb_unit_per_sublist):
   """Splits a list into a list of sublists (assuming that the list is sorted)"""  
   res = []
-  slist = []
-  to_append = False
-  for k in input_list:
-    slist[k] = input_list[k] 
-    to_append = True
-    # checks if the subdictionary is full
-    if(len(slist) == nb_unit_per_sublist):
-      res.append(slist)
-      to_append = False
-      slist = []
-
-  if(to_append == True):
-    res.append(slist)
+  n_splits = int(math.ceil(len(input_list) / float(nb_unit_per_sublist)))
+  for k in range(n_splits):
+    res.append(input_list[k*nb_unit_per_sublist:(k+1)*nb_unit_per_sublist])
   
   return res 
 

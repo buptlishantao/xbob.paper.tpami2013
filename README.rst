@@ -99,9 +99,9 @@ PLDA modeling on the Fisher's iris dataset. It performs the following
 tasks:
 
   1. Train a PLDA model using the first two classes of the dataset
-  2. Enrol a class-specific PLDA model for the third class of the dataset
+  2. Enroll a class-specific PLDA model for the third class of the dataset
   3. Compute (verification) scores for both positive and negative samples
-  4. Plot the distribution of the score and save it into a file
+  4. Plot the distribution of the scores and save it into a file
 
 To run this simple example, you just need to execute the following command::
 

@@ -103,7 +103,7 @@ def main():
                 ]
   if args.force: cmd_pldabase.append('--force')
   if args.grid: 
-    job_pldabase = submit(jm, cmd_pldabase, dependencies=[], array=None, queue='q1d', memfree='3G', hostname='!beaufix&!cicatrix')
+    job_pldabase = submit(jm, cmd_pldabase, dependencies=[], array=None, queue='q1d', memfree='3G', hostname='!cicatrix')
     print('submitted:', job_pldabase)
   else:
     print('Running PLDA training...')
@@ -124,7 +124,7 @@ def main():
     if args.force: cmd_pldabase.append('--force')
     if args.grid: cmd_pldabase.append('--grid')
     if args.grid: 
-      job_models_int = submit(jm, cmd_models, dependencies=[job_pldabase.id()], array=None, queue='q1d', memfree='3G', hostname='!beaufix&!cicatrix')
+      job_models_int = submit(jm, cmd_models, dependencies=[job_pldabase.id()], array=None, queue='q1d', memfree='3G', hostname='!cicatrix')
       job_models.append(job_models_int.id())
       print('submitted:', job_models_int)
     else:
@@ -152,7 +152,7 @@ def main():
     if args.grid: 
       deps = job_models
       deps.append(job_pldabase.id())
-      job_scores_int = submit(jm, cmd_scores, dependencies=deps, array=None, queue='q1d', memfree='3G', hostname='!beaufix&!cicatrix')
+      job_scores_int = submit(jm, cmd_scores, dependencies=deps, array=array=(1,n_array_jobs,1), queue='q1d', memfree='3G', hostname='!cicatrix')
       job_scores.append(job_scores_int.id())
       print 'submitted:', job_scores_int
     else:

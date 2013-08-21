@@ -1,0 +1,2 @@
+include README.rst buildout.cfg
+recursive-include *.py *.rst

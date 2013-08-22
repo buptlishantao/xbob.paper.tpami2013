@@ -163,8 +163,8 @@ def main():
     cmd_cat = [ 
                 './bin/concatenate_scores.py', 
                 '--config-file=%s' % args.config_file, 
-                '--protocol=%s' % config.protocol,
                 '--output-dir=%s' % output_dir,
+                '--plda-dir=%s' % plda_dir,
                 '--grid'
               ]
     job_cat = submit(jm, cmd_cat, dependencies=job_scores, array=None)

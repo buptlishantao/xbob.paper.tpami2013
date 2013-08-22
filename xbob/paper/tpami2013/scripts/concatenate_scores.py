@@ -28,7 +28,7 @@ def main():
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,
       dest='config_file', default='xbob/paper/tpami2013/config.py', help='Filename of the configuration file to use to run the script on the grid (defaults to "%(default)s")')
-  parser.add_argument('-g', '--group', metavar='LIST', type=list,
+  parser.add_argument('-g', '--group', metavar='LIST', type=str,
       dest='group', default=['dev','eval'], help='Database group (\'dev\' or \'eval\') for which to retrieve models (defaults to "%(default)s").')
   parser.add_argument('--output-dir', metavar='FILE', type=str,
       dest='output_dir', default='/idiap/temp/lelshafey/plda-multipie', help='The base output directory for everything (models, scores, etc.).')
@@ -42,21 +42,21 @@ def main():
   config = imp.load_source('config', args.config_file)
   if args.plda_dir: plda_dir = args.plda_dir
   else: plda_dir = config.plda_dir
-  lgroups = args.groups
+  groups = args.group
 
   N_MAX_SPLITS = 9999 # zfill is done with 4 zeros
-  for group in lgroups:
+  for group in groups:
     # (sorted) list of models
     models_ids = sorted([model.id for model in config.db.models(protocol=config.protocol, groups=group)])
 
-    sc_nonorm_filename = os.path.join(args.output_dir, config.protocol, config.plda_dir, config.scores_nonorm_dir, "scores-" + group)
+    sc_nonorm_filename = os.path.join(args.output_dir, config.protocol, plda_dir, config.scores_nonorm_dir, "scores-" + group)
     utils.erase_if_exists(sc_nonorm_filename)
     f = open(sc_nonorm_filename, 'w')
     # Concatenates the scores
     for model_id in models_ids:
       for split_id in range(0,N_MAX_SPLITS): 
         # Loads and concatenates
-        split_path = os.path.join(args.output_dir, config.protocol, config.plda_dir, config.scores_nonorm_dir, group, str(model_id) + "_" + str(split_id).zfill(4) + ".txt")
+        split_path = os.path.join(args.output_dir, config.protocol, plda_dir, config.scores_nonorm_dir, group, str(model_id) + "_" + str(split_id).zfill(4) + ".txt")
         if split_id == 0 and not os.path.exists(split_path):
           raise RuntimeError("Cannot find file %s" % split_path)
         elif not os.path.exists(split_path):

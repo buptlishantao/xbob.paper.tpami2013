@@ -83,7 +83,7 @@ def main():
   for model_id in models_ids:
     print("%s" % model_id)
     # Gets the probe sample list
-    probe_filenames = config.db.objects(groups=args.group, protocol=config.protocol, purposes="probe", model_ids=(model_id,))
+    probe_filenames = sorted(config.db.objects(groups=args.group, protocol=config.protocol, purposes="probe", model_ids=(model_id,)), key=lambda f: f.id)
     
     # If we are on a grid environment, just keep the required split of samples
     if args.grid:

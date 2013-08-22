@@ -22,7 +22,7 @@ from setuptools import setup, find_packages
 setup(
 
     name='xbob.paper.tpami2013',
-    version='0.0.1a3',
+    version='0.0.2a0',
     description='Example on how to use the scalable implementation of PLDA and how to reproduce experiments of the article',
     url='http://pypi.python.org/pypi/xbob.paper.tpami2013',
     license='GPLv3',
@@ -47,11 +47,14 @@ setup(
         'lbph_features.py = xbob.paper.tpami2013.scripts.lbph_features:main',
         'pca_train.py = xbob.paper.tpami2013.scripts.pca_train:main',
         'pca_project.py = xbob.paper.tpami2013.scripts.pca_project:main',
+        'pca.py = xbob.paper.tpami2013.scripts.pca:main',
         'plda_train.py = xbob.paper.tpami2013.scripts.plda_train:main',
-        'plda_models.py = xbob.paper.tpami2013.scripts.plda_models:main',
+        'plda_enroll.py = xbob.paper.tpami2013.scripts.plda_enroll:main',
         'plda_scores.py = xbob.paper.tpami2013.scripts.plda_scores:main',
         'concatenate_scores.py = xbob.paper.tpami2013.scripts.concatenate_scores:main',
-        'run_all.py = xbob.paper.tpami2013.scripts.run_all:main',
+        'plda.py = xbob.paper.tpami2013.scripts.plda:main',
+        'plda_subworld.py = xbob.paper.tpami2013.scripts.plda_subworld:main',
+        'plot_figure2.py = xbob.paper.tpami2013.scripts.plot_figure2:main',
         ],
       },
 

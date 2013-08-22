@@ -20,6 +20,7 @@ import os
 import math
 import numpy
 import bob
+import sys
 
 def ensure_dir(dirname):
   """ Creates the directory dirname if it does not already exist,
@@ -51,6 +52,20 @@ def check_string(var):
   """Make sure that the passed argument is a tuple or a list"""
   from six import string_types
   return isinstance(var, string_types)
+
+
+def submit(job_manager, command, dependencies=[], array=None, queue=None, mem=None, hostname=None, pe_opt=None):
+  """Submits one job using our specialized shell wrapper. We hard-code certain
+  parameters we like to use. You can change general submission parameters
+  directly at this method."""
+
+  from gridtk.tools import make_shell, random_logdir
+  name = os.path.splitext(os.path.basename(command[0]))[0]
+  logdir = os.path.join('logs', random_logdir())
+  use_command = make_shell(sys.executable, command)
+  return job_manager.submit(use_command, deps=dependencies, cwd=True,
+      queue=queue, mem=mem, hostname=hostname, pe_opt=pe_opt, 
+      stdout=logdir, stderr=logdir, name=name, array=array)
 
 
 def load_data(filenames, features_dir, features_ext):
@@ -125,3 +140,18 @@ def save_scores_to_textfile(scores, probe_filenames, model_id, output_filename, 
     f_scores.write(str(x.client_id) + " " + str(model_id) + " " + str(x.path) + " " + str(scores[i]) + "\n")
     i+=1
   f_scores.close()
+
+
+def compute_hter(filename_dev, filename_eval):
+  """Computes the HTER on the evaluation set, setting the threshold
+     at the EER on development set, given both the scores on the 
+     development and the evaluation set"""
+  dev_neg, dev_pos = bob.measure.load.split_four_column(filename_dev)
+  eval_neg, eval_pos = bob.measure.load.split_four_column(filename_eval)
+
+  thres = bob.measure.eer_threshold(dev_neg, dev_pos)
+
+  eval_far, eval_frr = bob.measure.farfrr(eval_neg, eval_pos, thres)
+  return (eval_far + eval_frr) / 2.
+
+

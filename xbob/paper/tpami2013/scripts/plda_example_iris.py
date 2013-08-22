@@ -140,7 +140,7 @@ def plot(scores_pos, scores_neg, dbname, output_filename):
   mpl.xlabel("Score values")
   mpl.ylabel("Count")
   mpl.savefig(output_filename)
-  print("Saved your plot at %s... Bye!" % output_filename)
+  print("Saved your plot at '%s'... Bye!" % output_filename)
 
 def main():
   parser = argparse.ArgumentParser(description=__doc__,

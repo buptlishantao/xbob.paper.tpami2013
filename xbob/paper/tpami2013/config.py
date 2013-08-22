@@ -83,6 +83,6 @@ plda_init_s_method = bob.trainer.PLDATrainer.VARIANCE_DATA
 plda_init_s_ratio = 1.
 
 # Grid options
-n_max_files_per_job = 100
-n_max_probes_per_job = 1000
+n_max_files_per_job = 500
+n_max_probes_per_job = 5000
 

@@ -17,10 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import argparse
 import imp 
-from .. import pca, utils
+from .. import utils
 
 def main():
 
@@ -44,44 +43,51 @@ def main():
 
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
+  # Update command line options if required
+  if not args.features_dir: features_dir = config.features_dir
+  else: features_dir = args.features_dir
+  if not args.pca_dir: pca_dir = config.pca_dir
+  else: pca_dir = args.pca_dir
 
-  # Directories containing the features and the PCA model
-  if args.features_dir: features_dir_ = args.features_dir
-  else: features_dir_ = config.features_dir
-  features_dir = os.path.join(args.output_dir, config.protocol, features_dir_)
-  if args.pca_dir: pca_dir_ = args.pca_dir
-  else: pca_dir_ = config.pca_dir
-  pca_model_filename = os.path.join(args.output_dir, config.protocol, pca_dir_, config.pca_model_filename)
 
-  # Remove old file if required
-  if args.force:
-    print("Removing old PCA base model")
-    utils.erase_if_exists(pca_model_filename)
+  # Let's create the job manager
+  if args.grid:
+    from gridtk.manager import JobManager
+    jm = JobManager()
 
-  if os.path.exists(pca_model_filename):
-    print("PCA base model already exists")
+  # Trains the LinearMachine
+  cmd_pcatrain = [ 
+                  './bin/pca_train.py', 
+                  '--config-file=%s' % args.config_file, 
+                  '--output-dir=%s' % args.output_dir,
+                  '--features-dir=%s' % features_dir,
+                  '--pca-dir=%s' % pca_dir,
+                 ]
+  if args.eig_filename: cmd_pcatrain.append('--eigenvalues=%s' % args.eig_filename)
+  if args.force: cmd_pcatrain.append('--force')
+  if args.grid: 
+    job_pcatrain = utils.submit(jm, cmd_pcatrain, dependencies=[], array=None, queue='q1d', mem='8G', hostname='!cicatrix')
+    print('submitted: %s' % job_pcatrain)
   else:
-    print("Training PCA base model")
+    print('Running PCA training...')
+    subprocess.call(cmd_pcatrain)
 
-    # Get list of list of filenames to load
-    training_filenames = config.db.objects(protocol=config.protocol, groups='world') 
-    print("Number of training files: " + str(len(training_filenames)))
-    
-    # Loads training data
-    training_data = utils.load_data(training_filenames, features_dir, config.features_ext)
 
-    # Trains a PCAMachine
-    (machine, eig_vals) = pca.train(training_data, config.pca_n_outputs)
-    
-    # Saves the machine
-    utils.save_machine(machine, pca_model_filename)
-    if args.eig_filename:
-      import numpy
-      eig_vals_s = numpy.ndarray(shape=(config.pca_n_outputs,), dtype=numpy.float64)
-      eig_vals_s = eig_vals[0:config.pca_n_outputs]
-      import bob
-      bob.io.save(eig_vals_s, args.eig_filename)
-    
+  # Project the data
+  cmd_pcaproject = [ 
+                    './bin/pca_project.py', 
+                    '--config-file=%s' % args.config_file, 
+                    '--output-dir=%s' % args.output_dir,
+                    '--features-dir=%s' % features_dir,
+                    '--pca-dir=%s' % pca_dir,
+                   ]
+  if args.force: cmd_pcaproject.append('--force')
+  if args.grid: 
+    job_pcaproject = utils.submit(jm, cmd_pcaproject, dependencies=[job_pcatrain.id()], array=None, queue='q1d', mem='2G', hostname='!cicatrix')
+    print('submitted: %s' % job_pcaproject)
+  else:
+    print('Running PCA training...')
+    subprocess.call(cmd_pcaproject)
 
 if __name__ == "__main__": 
   main()

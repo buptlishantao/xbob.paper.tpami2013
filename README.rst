@@ -1,3 +1,4 @@
+======================================================
 Probabilistic Linear Discriminant Analysis Experiments
 ======================================================
 
@@ -76,19 +77,85 @@ publications:
 Installation
 ------------
 
-Just download this package and uncompressed it locally::
+.. note:: 
+
+  If you are reading this page through our GitHub portal and not through PyPI,
+  note **the development tip of the package may not be stable** or become
+  unstable in a matter of moments.
+
+  Go to `http://pypi.python.org/pypi/xbob.paper.tpami2013
+  <http://pypi.python.org/pypi/xbob.paper.tpami2013>`_ to download the latest
+  stable version of this package.
+
+There are 2 options you can follow to get this package installed and
+operational on your computer: you can use automatic installers like `pip
+<http://pypi.python.org/pypi/pip/>`_ (or `easy_install
+<http://pypi.python.org/pypi/setuptools>`_) or manually download, unpack and
+use `zc.buildout <http://pypi.python.org/pypi/zc.buildout>`_ to create a
+virtual work environment just for this package.
+
+Using an automatic installer
+============================
+
+Using ``pip`` is the easiest (shell commands are marked with a ``$`` signal)::
+
+  $ pip install xbob.paper.tpami2013
+
+You can also do the same with ``easy_install``::
+
+  $ easy_install xbob.paper.tpami2013
+
+This will download and install this package plus any other required
+dependencies. It will also verify if the version of Bob you have installed
+is compatible.
+
+This scheme works well with virtual environments by `virtualenv
+<http://pypi.python.org/pypi/virtualenv>`_ or if you have root access to your
+machine. Otherwise, we recommend you use the next option.
+
+Using ``zc.buildout``
+=====================
+
+Download the latest version of this package from `PyPI
+<http://pypi.python.org/pypi/xbob.paper.tpami2013>`_ and unpack it in your
+working area::
 
   $ wget http://pypi.python.org/packages/source/x/xbob.paper.tpami2013/xbob.paper.tpami2013-0.0.1.zip
   $ unzip xbob.paper.tpami2013-0.0.1.zip
   $ cd xbob.paper.tpami2013
 
-Use buildout to bootstrap and have a working environment ready for
-experiments::
-
-  $ python bootstrap
+The installation of the toolkit itself uses `buildout 
+<http://www.buildout.org/>`_. You don't need to understand its inner workings
+to use this package. Here is a recipe to get you started::
+  
+  $ python bootstrap.py 
   $ ./bin/buildout
 
-This also requires that bob (>= 1.2.0) is installed.
+These 2 commands should download and install all non-installed dependencies and
+get you a fully operational test and development environment.
+
+Please note that this package also requires that bob (>= 1.2.0) is installed.
+
+.. note::
+
+  The python shell used in the first line of the previous command set
+  determines the python interpreter that will be used for all scripts developed
+  inside this package. Because this package makes use of `Bob
+  <http://idiap.github.com/bob>`_, you must make sure that the ``bootstrap.py``
+  script is called with the **same** interpreter used to build Bob, or
+  unexpected problems might occur.
+
+  If Bob is installed by the administrator of your system, it is safe to
+  consider it uses the default python interpreter. In this case, the above 3
+  command lines should work as expected. If you have Bob installed somewhere
+  else on a private directory, edit the file ``buildout.cfg`` **before**
+  running ``./bin/buildout``. Find the section named ``buildout`` and edit or
+  add the line ``prefixes`` to point to the directory where Bob is installed or
+  built. For example::
+
+    [buildout]
+    ...
+    prefixes=/home/laurent/work/bob/build
 
 
 PLDA tutorial
@@ -108,8 +175,34 @@ To run this simple example, you just need to execute the following command::
   $ ./bin/plda_example_iris.py --output-img plda_example_iris.png
 
 
-Reproducing Multi-PIE experiments
----------------------------------
+Reproducing experiments
+-----------------------
+
+It is currently possible to reproduce the experiments on Multi-PIE using
+the PLDA algorithm. In particular, the Figure 2 can be easily reproduced,
+by following the steps described below.
+
+The experiments using the three baseline systems reported on Table 3
+may be integrated later on in this package, as well as the experiments
+on the LFW database.
+
+Note for Grid Users
+===================
+
+At Idiap, we use the powerful Sun Grid Engine (SGE) to parallelize our 
+job submissions as much as we can. At the Biometrics group, we have developed 
+a little toolbox <http://pypi.python.org/pypi/gridtk> that can submit and 
+manage jobs at the Idiap computing grid through SGE. 
+
+The following sections will explain how to reproduce the paper results in 
+single (non-gridified) jobs. If you are at Idiap, you could run the 
+following commands on the SGE infrastructure, by applying the '--grid' 
+flag to any command. This may also work on other locations with an SGE 
+infrastructure, but will likely require some configuration changes in the 
+gridtk utility.
+
+Multi-PIE dataset
+=================
 
 Getting the data
 ~~~~~~~~~~~~~~~~
@@ -134,9 +227,16 @@ Dimensionality reduction
 
 Once the features has been extracted, they are projected into a lower
 dimensional subspace using Principal Component Analysis (PCA)::
+  
+  $ ./bin/pca.py --output-dir /PATH/TO/OUTPUT_DIR/
 
-  $ ./bin/pca_train.py --output-dir /PATH/TO/OUTPUT_DIR/
-  $ ./bin/pca_project.py --output-dir /PATH/TO/OUTPUT_DIR/
+.. note::
+
+  Equivalently, this can also be achieved by running the following 
+  individual commands::
+
+    $ ./bin/pca_train.py --output-dir /PATH/TO/OUTPUT_DIR/
+    $ ./bin/pca_project.py --output-dir /PATH/TO/OUTPUT_DIR/
 
 
 PLDA modeling and scoring
@@ -149,15 +249,57 @@ This involves three different steps:
   2. Model enrollment
   3. Scoring
 
-The following commands will perform all these steps::
+The following command will perform all these steps::
 
-  $ ./bin/plda_train.py --output-dir /PATH/TO/OUTPUT_DIR/
-  $ ./bin/plda_models.py --output-dir /PATH/TO/OUTPUT_DIR/
-  $ ./bin/plda_scores.py --group dev --output-dir /PATH/TO/OUTPUT_DIR/
-  $ ./bin/plda_scores.py --group eval --output-dir /PATH/TO/OUTPUT_DIR/
+  $ ./bin/plda.py --output-dir /PATH/TO/OUTPUT_DIR/
+
+.. note::
+
+  Equivalently, this can also be achieved by running the following 
+  individual commands::
+
+    $ ./bin/plda_train.py --output-dir /PATH/TO/OUTPUT_DIR/
+    $ ./bin/plda_enroll.py --output-dir /PATH/TO/OUTPUT_DIR/
+    $ ./bin/plda_scores.py --group dev --output-dir /PATH/TO/OUTPUT_DIR/
+    $ ./bin/plda_scores.py --group eval --output-dir /PATH/TO/OUTPUT_DIR/
 
 Then, the HTER on the evaluation set can be obtained using the 
 evaluation script from the bob library as follows::
 
   $ ./bin/bob_compute_perf.py -d /PATH/TO/OUTPUT_DIR/U/plda/scores/scores-dev -t /PATH/TO/OUTPUT_DIR/U/plda/scores/scores-eval -x
 
+If you want to reproduce the Figure 2 of the PLDA article mentioned above,
+you can run the following commands::
+
+  $ ./bin/plda_subworld.py --output-dir /PATH/TO/OUTPUT_DIR/
+  $ ./bin/plot_figure2.py --output-dir /PATH/TO/OUTPUT_DIR/
+
+.. note::
+
+  Equivalently, this can also be achieved by running the following 
+  individual commands. Be aware that the commands within the loop
+  are independent and monothreaded. Furthermore, you could break
+  the loop and call several of these commands at the same time
+  if your CPU has several cores::
+
+    $ for k in 2 4 6 8 10 14 19 29 38 48 57 67 76; do \
+        ./bin/plda.py --output-dir /PATH/TO/OUTPUT_DIR/ --world-nshots $k --plda-dir plda_subworld_${k}; \
+      done
+    $ ./bin/plot_figure2.py --output-dir /PATH/TO/OUTPUT_DIR/
+
+The previous commands will run the PLDA toolchain several times for a varying
+number of training samples. Please note, that this will require a lot of time
+to complete (one to two days on a recent workstation such as one with an
+Intel Core i7 CPU).
+
+.. note::
+
+  If you compare your obtained figure with the Figure 2 of the published article, 
+  you will observe slight differences. This is caused by the feature extraction
+  process. The features for the paper were generated using a version of Bob
+  that is unofficial (which means older than the first official release),
+  whereas the features currently generated rely on Bob 1.2.0. Many 
+  improvements were performed in the implementations of the preprocessing techniques 
+  (Face cropping and Tan Triggs algorithm) as well as in the LBP implementation.
+  If you wish to reproduce the exact same Figure 2, I can provide the initial features
+  on request (few hundreds of MB).

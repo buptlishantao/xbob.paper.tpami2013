@@ -87,7 +87,7 @@ Installation
   <http://pypi.python.org/pypi/xbob.paper.tpami2013>`_ to download the latest
   stable version of this package.
 
-There are 2 options you can follow to get this package installed and
+There are two options you can follow to get this package installed and
 operational on your computer: you can use automatic installers like `pip
 <http://pypi.python.org/pypi/pip/>`_ (or `easy_install
 <http://pypi.python.org/pypi/setuptools>`_) or manually download, unpack and
@@ -120,8 +120,8 @@ Download the latest version of this package from `PyPI
 <http://pypi.python.org/pypi/xbob.paper.tpami2013>`_ and unpack it in your
 working area::
 
-  $ wget http://pypi.python.org/packages/source/x/xbob.paper.tpami2013/xbob.paper.tpami2013-0.0.1.zip
-  $ unzip xbob.paper.tpami2013-0.0.1.zip
+  $ wget http://pypi.python.org/packages/source/x/xbob.paper.tpami2013/xbob.paper.tpami2013-0.1.0a0.zip
+  $ unzip xbob.paper.tpami2013-0.1.0a0.zip
   $ cd xbob.paper.tpami2013
 
 The installation of the toolkit itself uses `buildout 
@@ -131,7 +131,7 @@ to use this package. Here is a recipe to get you started::
   $ python bootstrap.py 
   $ ./bin/buildout
 
-These 2 commands should download and install all non-installed dependencies and
+These two commands should download and install all non-installed dependencies and
 get you a fully operational test and development environment.
 
 Please note that this package also requires that bob (>= 1.2.0) is installed.
@@ -179,8 +179,8 @@ Reproducing experiments
 -----------------------
 
 It is currently possible to reproduce the experiments on Multi-PIE using
-the PLDA algorithm. In particular, the Figure 2 can be easily reproduced,
-by following the steps described below.
+the PLDA algorithm. In particular, the Figure 2 of the article can be 
+easily reproduced, by following the steps described below.
 
 The experiments using the three baseline systems reported on Table 3
 may be integrated later on in this package, as well as the experiments

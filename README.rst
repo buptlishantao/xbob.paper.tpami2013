@@ -208,9 +208,9 @@ Getting the data
 ~~~~~~~~~~~~~~~~
 
 You first need to buy and download the Multi-PIE database:
-  http://multipie.org/
+  <http://multipie.org/>
 and to download the annotations available here:
-  http://www.idiap.ch/resource/biometric/
+  <http://www.idiap.ch/resource/biometric/>
 
 
 Feature extraction
@@ -303,3 +303,20 @@ Intel Core i7 CPU).
   (Face cropping and Tan Triggs algorithm) as well as in the LBP implementation.
   If you wish to reproduce the exact same Figure 2, I can provide the initial features
   on request (few hundreds of MB).
+
+
+Reporting bugs
+--------------
+
+The package is open source and maintained via github.
+
+If you find a problem wrt. to this satelitte package, please open
+an issue on the `github webpage of this satellite package
+ <http://www.github.com/bioidiap/xbob.paper.tpami2013>`_ .
+
+If you find a problem wrt. to the PLDA implementation, please open
+an issue on its `Bob's github webpage <http://www.github.com/idiap/bob>`_ .
+
+Please follow `these guidelines 
+<http://www.idiap.ch/software/bob/docs/releases/last/sphinx/html/TicketReportingDev.html>`_
+when (or even better before) reporting any bug.

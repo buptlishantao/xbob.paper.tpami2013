@@ -67,7 +67,7 @@ def main():
     if pos >= n_jobs:
       raise RuntimeError("Grid request for job %d on a setup with %d jobs" % (pos, n_jobs))
     inputs_list_g = utils.split_list(inputs_list, config.n_max_files_per_job)[pos]
-    inputs_list = input_list_g
+    inputs_list = inputs_list_g
 
   # Checks that the base directory for storing the features exists
   utils.ensure_dir(features_projected_dir)

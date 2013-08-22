@@ -295,14 +295,17 @@ Intel Core i7 CPU).
 .. note::
 
   If you compare your obtained figure with the Figure 2 of the published article, 
-  you will observe slight differences. This is caused by the feature extraction
-  process. The features for the paper were generated using a version of Bob
-  that is unofficial (which means older than the first official release),
-  whereas the features currently generated rely on Bob 1.2.0. Many 
-  improvements were performed in the implementations of the preprocessing techniques 
-  (Face cropping and Tan Triggs algorithm) as well as in the LBP implementation.
-  If you wish to reproduce the exact same Figure 2, I can provide the initial features
-  on request (few hundreds of MB).
+  you will observe slight differences. This is caused by two different aspects:
+  1. The order of the files obtained (and now sorted) from the database API.
+     For instance, when applying PCA, the input matrix will be different depending
+     on the order of the file used to build this matrix.
+  2. The features for the paper were generated using a version of Bob that is 
+     unofficial (which means older than the first official release), whereas the 
+     features currently generated rely on Bob 1.2.0. Many improvements were 
+     performed in the implementations of the preprocessing techniques (Face 
+     cropping and Tan Triggs algorithm) as well as in the LBP implementation. If 
+     you wish to reproduce the exact same Figure 2, I can provide the initial 
+     features on request (few hundreds of MB).
 
 
 Reporting bugs

@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import argparse
 import imp 
 from .. import utils
@@ -48,7 +49,6 @@ def main():
   else: features_dir = args.features_dir
   if not args.pca_dir: pca_dir = config.pca_dir
   else: pca_dir = args.pca_dir
-
 
   # Let's create the job manager
   if args.grid:
@@ -84,8 +84,14 @@ def main():
                    ]
   if args.force: cmd_pcaproject.append('--force')
   if args.grid: 
+    import math
+    # Database python objects (sorted by keys in case of SGE grid usage)
+    inputs_list = config.db.objects(protocol=config.protocol)
+    inputs_list.sort(key=lambda x: x.id)
+    # Number of array jobs
+    n_array_jobs = int(math.ceil(len(inputs_list) / float(config.n_max_files_per_job)))  
     cmd_pcaproject.append('--grid')
-    job_pcaproject = utils.submit(jm, cmd_pcaproject, dependencies=[job_pcatrain.id()], array=None, queue='q1d', mem='2G', hostname='!cicatrix')
+    job_pcaproject = utils.submit(jm, cmd_pcaproject, dependencies=[job_pcatrain.id()], array=(1,n_array_jobs,1), queue='q1d', mem='2G', hostname='!cicatrix')
     print('submitted: %s' % job_pcaproject)
   else:
     print('Running PCA training...')

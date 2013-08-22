@@ -45,8 +45,6 @@ def main():
       dest='pca_dir', default=None, help='The subdirectory where the PCA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('--plda-dir', metavar='STR', type=str,
       dest='plda_dir', default=None, help='The subdirectory where the PLDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
-  parser.add_argument('-g', '--group', metavar='STR', type=str, nargs='+',
-      dest='group', default=['dev','eval'], help='Database group (\'dev\' or \'eval\') for which to enrol models and compute scores.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -82,6 +80,7 @@ def main():
                 '--plda-dir=%s' % plda_dir_k,
               ]
     if args.force: cmd_plda.append('--force')
+    if args.grid: cmd_plda.append('--grid')
     subprocess.call(cmd_plda)
 
 if __name__ == '__main__':

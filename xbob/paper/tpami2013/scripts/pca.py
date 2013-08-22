@@ -66,6 +66,7 @@ def main():
   if args.eig_filename: cmd_pcatrain.append('--eigenvalues=%s' % args.eig_filename)
   if args.force: cmd_pcatrain.append('--force')
   if args.grid: 
+    cmd_pcatrain.append('--grid')
     job_pcatrain = utils.submit(jm, cmd_pcatrain, dependencies=[], array=None, queue='q1d', mem='8G', hostname='!cicatrix')
     print('submitted: %s' % job_pcatrain)
   else:
@@ -83,6 +84,7 @@ def main():
                    ]
   if args.force: cmd_pcaproject.append('--force')
   if args.grid: 
+    cmd_pcaproject.append('--grid')
     job_pcaproject = utils.submit(jm, cmd_pcaproject, dependencies=[job_pcatrain.id()], array=None, queue='q1d', mem='2G', hostname='!cicatrix')
     print('submitted: %s' % job_pcaproject)
   else:

@@ -86,6 +86,7 @@ def main():
                  ]
   if args.force: cmd_pldabase.append('--force')
   if args.grid: 
+    cmd_pldabase.append('--grid')
     job_pldabase = utils.submit(jm, cmd_pldabase, dependencies=[], array=None, queue='q1d', mem='4G', hostname='!cicatrix')
     print('submitted: %s' % job_pldabase)
   else:
@@ -105,8 +106,8 @@ def main():
                   '--plda-dir=%s' % plda_dir,
                  ]
     if args.force: cmd_enroll.append('--force')
-    if args.grid: cmd_enroll.append('--grid')
     if args.grid: 
+      cmd_enroll.append('--grid')
       job_enroll_int = utils.submit(jm, cmd_enroll, dependencies=[job_pldabase.id()], array=None, queue='q1d', mem='2G', hostname='!cicatrix')
       job_enroll.append(job_enroll_int.id())
       print('submitted: %s' % job_enroll_int)
@@ -131,8 +132,8 @@ def main():
                   '--pca-dir=%s' % pca_dir,
                   '--plda-dir=%s' % plda_dir,
                  ]
-    if args.grid: cmd_scores.append('--grid')
     if args.grid: 
+      cmd_scores.append('--grid')
       deps = job_enroll
       job_scores_int = utils.submit(jm, cmd_scores, dependencies=deps, array=(1,n_array_jobs,1), queue='q1d', mem='3G', hostname='!cicatrix')
       job_scores.append(job_scores_int.id())

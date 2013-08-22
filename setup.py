@@ -22,7 +22,7 @@ from setuptools import setup, find_packages
 setup(
 
     name='xbob.paper.tpami2013',
-    version='0.0.2a0',
+    version='0.1.0a0',
     description='Example on how to use the scalable implementation of PLDA and how to reproduce experiments of the article',
     url='http://pypi.python.org/pypi/xbob.paper.tpami2013',
     license='GPLv3',

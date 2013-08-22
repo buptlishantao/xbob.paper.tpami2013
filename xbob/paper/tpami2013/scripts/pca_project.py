@@ -64,8 +64,8 @@ def main():
     pos = int(os.environ['SGE_TASK_ID']) - 1
     n_jobs = int(math.ceil(len(inputs_list) / float(config.n_max_files_per_job)))
     
-    if pos >= n_total:
-      raise RuntimeError("Grid request for job %d on a setup with %d jobs" % (pos, n_total))
+    if pos >= n_jobs:
+      raise RuntimeError("Grid request for job %d on a setup with %d jobs" % (pos, n_jobs))
     inputs_list_g = utils.split_list(inputs_list, config.n_max_files_per_job)[pos]
     inputs_list = input_list_g
 

@@ -296,9 +296,11 @@ Intel Core i7 CPU).
 
   If you compare your obtained figure with the Figure 2 of the published article, 
   you will observe slight differences. This is caused by two different aspects:
+
   1. The order of the files obtained (and now sorted) from the database API.
      For instance, when applying PCA, the input matrix will be different depending
      on the order of the file used to build this matrix.
+
   2. The features for the paper were generated using a version of Bob that is 
      unofficial (which means older than the first official release), whereas the 
      features currently generated rely on Bob 1.2.0. Many improvements were 
@@ -313,9 +315,13 @@ Reporting bugs
 
 The package is open source and maintained via github.
 
+If you are facing technical issues to be able to run the scripts
+of this package, please send a message on the `bob's mailing list
+<https://groups.google.com/forum/#!forum/bob-devel>`_.
+
 If you find a problem wrt. to this satelitte package, please open
 an issue on the `github webpage of this satellite package
- <http://www.github.com/bioidiap/xbob.paper.tpami2013>`_ .
+<http://www.github.com/bioidiap/xbob.paper.tpami2013>`_ .
 
 If you find a problem wrt. to the PLDA implementation, please open
 an issue on its `Bob's github webpage <http://www.github.com/idiap/bob>`_ .

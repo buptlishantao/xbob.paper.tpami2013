@@ -37,14 +37,14 @@ def main():
      dest='nf', default=0, help='The dimensionality of the F subspace. It will overwrite the value in the configuration file if any. Default is the value in the configuration file')
   parser.add_argument('--ng', metavar='INT', type=int,
      dest='ng', default=0, help='The dimensionality of the G subspace. It will overwrite the value in the configuration file if any. Default is the value in the configuration file')
-  parser.add_argument('--world-nshots', metavar='INT', type=int,
-     dest='world_nshots', default=0, help='The maximum number of samples per identity to use, to train the PLDA model. Default is to use all possible samples')
   parser.add_argument('--output-dir', metavar='STR', type=str,
       dest='output_dir', default='/idiap/temp/lelshafey/plda-multipie', help='The base output directory for everything (models, scores, etc.).')
-  parser.add_argument('--pca-dir', metavar='STR', type=str,
-      dest='pca_dir', default=None, help='The subdirectory where the PCA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+  parser.add_argument('--features-dir', metavar='STR', type=str,
+      dest='features_dir', default=None, help='The subdirectory (wrt. to output_dir) where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('--plda-dir', metavar='STR', type=str,
       dest='plda_dir', default=None, help='The subdirectory where the PLDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+  parser.add_argument('--plda-model-filename', metavar='STR', type=str,
+      dest='plda_model_filename', default=None, help='The filename of the PLDABase model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -58,27 +58,29 @@ def main():
   else: plda_nf = args.nf
   if args.ng == 0: plda_ng = config.plda_ng
   else: plda_ng = args.ng
-  if not args.pca_dir: pca_dir = config.pca_dir
-  else: pca_dir = args.pca_dir
+  # Directories containing the features and the PLDA model
+  if args.features_dir: features_dir = args.features_dir
+  else: features_dir = config.features_dir
   if not args.plda_dir: plda_dir = config.plda_dir
   else: plda_dir = args.plda_dir
-  if utils.check_string(args.group): groups = [args.group]
-  else: groups = args.group
+  if args.plda_model_filename: plda_model_filename = args.plda_model_filename
+  else: plda_model_filename = config.model_filename
 
   # Run the PLDA toolchain for a varying number of training samples
   subworld_n = [2, 4, 6, 8, 10, 14, 19, 29, 38, 48, 57, 67, 76]
   for k in subworld_n:
     plda_dir_k = '%s_subworld_%d' % (plda_dir, k)
     cmd_plda = [ 
-                './bin/plda.py', 
+                './bin/toolchain_plda.py', 
                 '--config-file=%s' % args.config_file, 
                 '--nf=%d' % plda_nf,
                 '--ng=%d' % plda_ng,
                 '--world-nshots=%d' % k,
                 '--output-dir=%s' % args.output_dir,
-                '--pca-dir=%s' % pca_dir,
+                '--features-dir=%s' % features_dir,
                 '--plda-dir=%s' % plda_dir_k,
-              ]
+                '--plda-model-filename=%s' % plda_model_filename,
+               ]
     if args.force: cmd_plda.append('--force')
     if args.grid: cmd_plda.append('--grid')
     subprocess.call(cmd_plda)

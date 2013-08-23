@@ -20,7 +20,7 @@
 import os
 import argparse
 import imp 
-from .. import pca, utils
+from .. import linear, utils
 
 def main():
 
@@ -28,12 +28,16 @@ def main():
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,
       dest='config_file', default='xbob/paper/tpami2013/config.py', help='Filename of the configuration file to use to run the script on the grid (defaults to "%(default)s")')
+  parser.add_argument('--n-outputs', metavar='INT', type=int,
+     dest='n_outputs', default=None, help='The rank of the PCA subspace. It will overwrite the value in the configuration file if any. Default is the value in the configuration file')
   parser.add_argument('--output-dir', metavar='FILE', type=str,
       dest='output_dir', default='/idiap/temp/lelshafey/plda-multipie', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='STR', type=str,
       dest='features_dir', default=None, help='The subdirectory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('--pca-dir', metavar='STR', type=str,
       dest='pca_dir', default=None, help='The subdirectory where the PCA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+  parser.add_argument('--pca-model-filename', metavar='STR', type=str,
+      dest='pca_model_filename', default=None, help='The filename of the PCA model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('--eigenvalues', metavar='FILE', type=str,
       dest='eig_filename', default=None, help='The file for storing the eigenvalues.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
@@ -44,34 +48,38 @@ def main():
 
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
-
+  # Update command line options if required
+  if args.n_outputs: pca_n_outputs = args.n_outputs
+  else: pca_n_outputs = config.pca_n_outputs
   # Directories containing the features and the PCA model
   if args.features_dir: features_dir_ = args.features_dir
   else: features_dir_ = config.features_dir
   features_dir = os.path.join(args.output_dir, config.protocol, features_dir_)
   if args.pca_dir: pca_dir_ = args.pca_dir
   else: pca_dir_ = config.pca_dir
-  pca_model_filename = os.path.join(args.output_dir, config.protocol, pca_dir_, config.pca_model_filename)
+  if args.pca_model_filename: pca_model_filename_ = args.pca_model_filename
+  else: pca_model_filename_ = config.model_filename
+  pca_model_filename = os.path.join(args.output_dir, config.protocol, pca_dir_, pca_model_filename_)
 
   # Remove old file if required
   if args.force:
-    print("Removing old PCA base model")
+    print("Removing old PCA base model.")
     utils.erase_if_exists(pca_model_filename)
 
   if os.path.exists(pca_model_filename):
-    print("PCA base model already exists")
+    print("PCA base model already exists.")
   else:
-    print("Training PCA base model")
+    print("Training PCA base model.")
 
     # Get list of list of filenames to load
-    training_filenames = config.db.objects(protocol=config.protocol, groups='world') 
+    training_filenames = sorted(config.db.objects(protocol=config.protocol, groups='world'), key=lambda f: f.path)
     print("Number of training files: " + str(len(training_filenames)))
     
     # Loads training data
     training_data = utils.load_data(training_filenames, features_dir, config.features_ext)
 
     # Trains a PCAMachine
-    (machine, eig_vals) = pca.train(training_data, config.pca_n_outputs)
+    (machine, eig_vals) = linear.pca_train(training_data, config.pca_n_outputs)
     
     # Saves the machine
     utils.save_machine(machine, pca_model_filename)

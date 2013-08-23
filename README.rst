@@ -120,8 +120,8 @@ Download the latest version of this package from `PyPI
 <http://pypi.python.org/pypi/xbob.paper.tpami2013>`_ and unpack it in your
 working area::
 
-  $ wget http://pypi.python.org/packages/source/x/xbob.paper.tpami2013/xbob.paper.tpami2013-0.1.0a0.zip
-  $ unzip xbob.paper.tpami2013-0.1.0a0.zip
+  $ wget http://pypi.python.org/packages/source/x/xbob.paper.tpami2013/xbob.paper.tpami2013-0.2.0a0.zip
+  $ unzip xbob.paper.tpami2013-0.2.0a0.zip
   $ cd xbob.paper.tpami2013
 
 The installation of the toolkit itself uses `buildout 
@@ -228,7 +228,7 @@ Dimensionality reduction
 Once the features has been extracted, they are projected into a lower
 dimensional subspace using Principal Component Analysis (PCA)::
   
-  $ ./bin/pca.py --output-dir /PATH/TO/OUTPUT_DIR/
+  $ ./bin/pca_features.py --output-dir /PATH/TO/OUTPUT_DIR/
 
 .. note::
 
@@ -251,7 +251,7 @@ This involves three different steps:
 
 The following command will perform all these steps::
 
-  $ ./bin/plda.py --output-dir /PATH/TO/OUTPUT_DIR/
+  $ ./bin/toolchain_plda.py --output-dir /PATH/TO/OUTPUT_DIR/
 
 .. note::
 
@@ -269,9 +269,9 @@ evaluation script from the bob library as follows::
   $ ./bin/bob_compute_perf.py -d /PATH/TO/OUTPUT_DIR/U/plda/scores/scores-dev -t /PATH/TO/OUTPUT_DIR/U/plda/scores/scores-eval -x
 
 If you want to reproduce the Figure 2 of the PLDA article mentioned above,
-you can run the following commands::
+you can run the following commands (instead of the previous one)::
 
-  $ ./bin/plda_subworld.py --output-dir /PATH/TO/OUTPUT_DIR/
+  $ ./bin/experiment_plda_subworld.py --output-dir /PATH/TO/OUTPUT_DIR/
   $ ./bin/plot_figure2.py --output-dir /PATH/TO/OUTPUT_DIR/
 
 .. note::
@@ -297,17 +297,15 @@ Intel Core i7 CPU).
   If you compare your obtained figure with the Figure 2 of the published article, 
   you will observe slight differences. This is caused by two different aspects:
 
-  1. The order of the files obtained (and now sorted) from the database API.
-     For instance, when applying PCA, the input matrix will be different depending
-     on the order of the file used to build this matrix.
-
-  2. The features for the paper were generated using a version of Bob that is 
+  1. The features for the paper were generated using a version of Bob that is 
      unofficial (which means older than the first official release), whereas the 
      features currently generated rely on Bob 1.2.0. Many improvements were 
      performed in the implementations of the preprocessing techniques (Face 
-     cropping and Tan Triggs algorithm) as well as in the LBP implementation. If 
-     you wish to reproduce the exact same Figure 2, I can provide the initial 
-     features on request (few hundreds of MB).
+     cropping and Tan Triggs algorithm) as well as in the LBP implementation. 
+
+  2. The order of the files obtained (and now sorted) from the database API.
+     For instance, when applying PCA, the input matrix will be different depending
+     on the order of the file used to build this matrix.
 
 
 Reporting bugs
@@ -324,7 +322,7 @@ an issue on the `github webpage of this satellite package
 <http://www.github.com/bioidiap/xbob.paper.tpami2013>`_ .
 
 If you find a problem wrt. to the PLDA implementation, please open
-an issue on its `Bob's github webpage <http://www.github.com/idiap/bob>`_ .
+an issue on `Bob's github webpage <http://www.github.com/idiap/bob>`_ .
 
 Please follow `these guidelines 
 <http://www.idiap.ch/software/bob/docs/releases/last/sphinx/html/TicketReportingDev.html>`_

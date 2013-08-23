@@ -32,10 +32,12 @@ def main():
       dest='group', default=['dev','eval'], help='Database group (\'dev\' or \'eval\') for which to retrieve models.')
   parser.add_argument('--output-dir', metavar='FILE', type=str,
       dest='output_dir', default='/idiap/temp/lelshafey/plda-multipie', help='The base output directory for everything (models, scores, etc.).')
-  parser.add_argument('--pca-dir', metavar='STR', type=str,
-      dest='pca_dir', default=None, help='The subdirectory where the PCA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+  parser.add_argument('--features-dir', metavar='STR', type=str,
+      dest='features_dir', default=None, help='The subdirectory (wrt. to output_dir) where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('--plda-dir', metavar='STR', type=str,
       dest='plda_dir', default=None, help='The subdirectory where the PLDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+  parser.add_argument('--plda-model-filename', metavar='STR', type=str,
+      dest='plda_model_filename', default=None, help='The filename of the PLDABase model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -44,14 +46,15 @@ def main():
  
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
-
   # Directories containing the features and the PCA model
-  if args.pca_dir: pca_dir_ = args.pca_dir
-  else: pca_dir_ = config.pca_dir
-  features_projected_dir = os.path.join(args.output_dir, config.protocol, pca_dir_, config.features_projected_dir)
+  if args.features_dir: features_dir_ = args.features_dir
+  else: features_dir_ = config.features_dir
+  features_dir = os.path.join(args.output_dir, config.protocol, features_dir_)
   if args.plda_dir: plda_dir_ = args.plda_dir
   else: plda_dir_ = config.plda_dir
-  plda_model_filename = os.path.join(args.output_dir, config.protocol, plda_dir_, config.plda_model_filename)
+  if args.plda_model_filename: plda_model_filename_ = args.plda_model_filename
+  else: plda_model_filename_ = config.model_filename
+  plda_model_filename = os.path.join(args.output_dir, config.protocol, plda_dir_, plda_model_filename_)
   if utils.check_string(args.group): groups = [args.group]
   else: groups = args.group
 
@@ -61,27 +64,27 @@ def main():
   # Loads the PLDABase 
   pldabase = plda.load_base_model(plda_model_filename)
 
-  # Enrols all the client models
-  print("Enroling PLDA models...")
+  # Enrolls all the client models
+  print("Enrolling PLDA models...")
   for model_id in models_ids:
     # Path to the model
     model_path = os.path.join(args.output_dir, config.protocol, plda_dir_, config.models_dir, str(model_id) + ".hdf5")
 
-    # Remove old file if required
+    # Removes old file if required
     if args.force:
-      print("Removing old PLDA model")
-      erase_if_exists(model_path)
+      print("Removing old PLDA model.")
+      utils.erase_if_exists(model_path)
 
     if os.path.exists(model_path):
-      print("PLDA model already exists")
+      print("PLDA model already exists.")
     else:
-      # List of enrolment filenames
-      enrol_files = config.db.objects(protocol=config.protocol, model_ids=(model_id,), purposes='enrol')
-      # Loads enrolment files
-      data = utils.load_data(enrol_files, features_projected_dir, config.features_projected_ext)
+      # List of enrollment filenames
+      enroll_files = config.db.objects(protocol=config.protocol, model_ids=(model_id,), purposes='enrol')
+      # Loads enrollment files
+      data = utils.load_data(enroll_files, features_dir, config.features_ext)
     
-      # Enrols
-      machine = plda.enrol_model(data, pldabase)
+      # Enrolls
+      machine = plda.enroll_model(data, pldabase)
 
       # Saves the machine
       utils.save_machine(machine, model_path)

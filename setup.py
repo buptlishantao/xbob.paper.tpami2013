@@ -22,7 +22,7 @@ from setuptools import setup, find_packages
 setup(
 
     name='xbob.paper.tpami2013',
-    version='0.1.0a1',
+    version='0.2.0a0',
     description='Example on how to use the scalable implementation of PLDA and how to reproduce experiments of the article',
     url='http://pypi.python.org/pypi/xbob.paper.tpami2013',
     license='GPLv3',
@@ -38,22 +38,24 @@ setup(
       'setuptools',
       'bob >= 1.2.0',
       'xbob.db.multipie',
+      'six',  # py2/3 compatibility library
       'gridtk',
     ],
 
     entry_points={
       'console_scripts': [
         'plda_example_iris.py = xbob.paper.tpami2013.scripts.plda_example_iris:main',
+        'lbph_extraction.py = xbob.paper.tpami2013.scripts.lbph_extraction:main',
         'lbph_features.py = xbob.paper.tpami2013.scripts.lbph_features:main',
         'pca_train.py = xbob.paper.tpami2013.scripts.pca_train:main',
-        'pca_project.py = xbob.paper.tpami2013.scripts.pca_project:main',
-        'pca.py = xbob.paper.tpami2013.scripts.pca:main',
+        'linear_project.py = xbob.paper.tpami2013.scripts.linear_project:main',
+        'pca_features.py = xbob.paper.tpami2013.scripts.pca_features:main',
         'plda_train.py = xbob.paper.tpami2013.scripts.plda_train:main',
         'plda_enroll.py = xbob.paper.tpami2013.scripts.plda_enroll:main',
         'plda_scores.py = xbob.paper.tpami2013.scripts.plda_scores:main',
         'concatenate_scores.py = xbob.paper.tpami2013.scripts.concatenate_scores:main',
-        'plda.py = xbob.paper.tpami2013.scripts.plda:main',
-        'plda_subworld.py = xbob.paper.tpami2013.scripts.plda_subworld:main',
+        'toolchain_plda.py = xbob.paper.tpami2013.scripts.toolchain_plda:main',
+        'experiment_plda_subworld.py = xbob.paper.tpami2013.scripts.experiment_plda_subworld:main',
         'plot_figure2.py = xbob.paper.tpami2013.scripts.plot_figure2:main',
         ],
       },
@@ -64,7 +66,7 @@ setup(
     ],
 
     classifiers = [
-      'Development Status :: 5 - Production/Stable',
+      'Development Status :: 4 - Beta',
       'Intended Audience :: Education',
       'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
       'Natural Language :: English',

@@ -2,6 +2,8 @@
 # vim: set fileencoding=utf-8 :
 # Laurent El Shafey <Laurent.El-Shafey@idiap.ch>
 #
+# Copyright (C) 2011-2013 Idiap Research Institute, Martigny, Switzerland
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, version 3 of the License.
@@ -33,13 +35,13 @@ def _parse_annotations(pos_input_k):
     # frontal image annotations
     labels = ['reye', 'leye', 'reyeo', 'reyei', 'leyei', 'leyeo', 'nose', 'mouthr', 'mouthl', 'lipt', 'lipb', 'chin', 'rbrowo', 'rbrowi', 'lbrowi', 'lbrowo']
   else:
-    raise ValueError("The number %d of annotations in file '%s' is not handled."%(count, file_name))
+    raise ValueError("The number %d of annotations in file '%s' is not handled." % (count, file_name))
 
   for i in range(count):
     line = f.readline()
     positions = line.split()
     assert len(positions) == 2
-    annotations[labels[i]] = (float(positions[1]),float(positions[0]))
+    annotations[labels[i]] = (float(positions[1]), float(positions[0]))
 
   rh = annotations['reye'][0]
   rw = annotations['reye'][1]

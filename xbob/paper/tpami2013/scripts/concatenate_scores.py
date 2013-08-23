@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys
+import os
 import imp 
 import argparse
 from .. import utils
@@ -31,38 +31,43 @@ def main():
   parser.add_argument('-g', '--group', metavar='LIST', type=str,
       dest='group', default=['dev','eval'], help='Database group (\'dev\' or \'eval\') for which to retrieve models (defaults to "%(default)s").')
   parser.add_argument('--output-dir', metavar='FILE', type=str,
-      dest='output_dir', default='/idiap/temp/lelshafey/plda-multipie', help='The base output directory for everything (models, scores, etc.).')
-  parser.add_argument('--plda-dir', metavar='STR', type=str,
-      dest='plda_dir', default=None, help='The subdirectory where the PLDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='output_dir', default='/idiap/temp/lelshafey/plda-multipie', help='The base output directory for everything (features, models, scores, etc.).')
+  parser.add_argument('--algorithm-dir', metavar='STR', type=str,
+      dest='algorithm_dir', default=None, help='The subdirectory where the data for the given algorithm are stored.')
+  parser.add_argument('-f', '--force', dest='force', action='store_true',
+      default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
       default=False, help='If set, assumes it is being run using a parametric grid job. It orders all ids to be processed and picks the one at the position given by ${SGE_TASK_ID}-1')
   args = parser.parse_args()
 
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
-  if args.plda_dir: plda_dir = args.plda_dir
-  else: plda_dir = config.plda_dir
-  groups = args.group
 
   N_MAX_SPLITS = 9999 # zfill is done with 4 zeros
-  for group in groups:
+  for group in args.group:
     # (sorted) list of models
     models_ids = sorted([model.id for model in config.db.models(protocol=config.protocol, groups=group)])
 
-    sc_nonorm_filename = os.path.join(args.output_dir, config.protocol, plda_dir, config.scores_nonorm_dir, "scores-" + group)
-    utils.erase_if_exists(sc_nonorm_filename)
-    f = open(sc_nonorm_filename, 'w')
-    # Concatenates the scores
-    for model_id in models_ids:
-      for split_id in range(0,N_MAX_SPLITS): 
-        # Loads and concatenates
-        split_path = os.path.join(args.output_dir, config.protocol, plda_dir, config.scores_nonorm_dir, group, str(model_id) + "_" + str(split_id).zfill(4) + ".txt")
-        if split_id == 0 and not os.path.exists(split_path):
-          raise RuntimeError("Cannot find file %s" % split_path)
-        elif not os.path.exists(split_path):
-          break
-        f.write(open(split_path, 'r').read())
-    f.close()
+    sc_nonorm_filename = os.path.join(args.output_dir, config.protocol, args.algorithm_dir, config.scores_nonorm_dir, "scores-" + group)
+    if args.force:
+      print("Removing old scores file '%s'." % sc_nonorm_filename)
+      utils.erase_if_exists(sc_nonorm_filename)
+    
+    if os.path.exists(sc_nonorm_filename):
+      print("Scores file '%s' already exists." % sc_nonorm_filename)
+    else:
+      f = open(sc_nonorm_filename, 'w')
+      # Concatenates the scores
+      for model_id in models_ids:
+        for split_id in range(0,N_MAX_SPLITS): 
+          # Loads and concatenates
+          split_path = os.path.join(args.output_dir, config.protocol, args.algorithm_dir, config.scores_nonorm_dir, group, str(model_id) + "_" + str(split_id).zfill(4) + ".txt")
+          if split_id == 0 and not os.path.exists(split_path):
+            raise RuntimeError("Cannot find file %s" % split_path)
+          elif not os.path.exists(split_path):
+            break
+          f.write(open(split_path, 'r').read())
+      f.close()
 
 if __name__ == "__main__": 
   main()

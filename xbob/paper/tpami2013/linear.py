@@ -19,10 +19,19 @@
 import bob
 import os
 
-def train(data, n_outputs):
+def pca_train(data, n_outputs):
   """Generates the PCA covariance matrix"""
   print("Training LinearMachine using PCA (SVD)")
   T = bob.trainer.PCATrainer()
+  machine, eig_vals = T.train(data)
+  # Machine: get shape, then resize
+  machine.resize(machine.shape[0], n_outputs)
+  return (machine, eig_vals)
+
+def lda_train(data, n_outputs):
+  """Generates the Fisher LDA preojection matrix"""
+  print("Training LinearMachine using Fisher's LDA")
+  T = bob.trainer.FisherLDATrainer()
   machine, eig_vals = T.train(data)
   # Machine: get shape, then resize
   machine.resize(machine.shape[0], n_outputs)
@@ -33,8 +42,8 @@ def project(data_in, machine, data_out):
   # Projects the data
   machine(data_in, data_out)
 
-def load_model(pca_model_filename):
-  if not os.path.exists(pca_model_filename):
-    raise RuntimeError("Cannot find Linear PCA Machine %s" % (pca_model_filename))
-  return bob.machine.LinearMachine(bob.io.HDF5File(pca_model_filename))
+def load_model(model_filename):
+  if not os.path.exists(model_filename):
+    raise RuntimeError("Cannot find LinearMachine %s" % (model_filename))
+  return bob.machine.LinearMachine(bob.io.HDF5File(model_filename))
 

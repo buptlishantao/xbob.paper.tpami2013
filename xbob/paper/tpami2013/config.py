@@ -23,18 +23,23 @@ import xbob.db.multipie
 
 # Directories and extensions
 ## features
-features_dir = 'features'
+features_base_dir = 'features'
+lbph_features_dir = os.path.join(features_base_dir, 'lbph')
+features_projected_dir = 'lbph_projected'
+features_dir = os.path.join(features_base_dir, features_projected_dir)
 features_ext = '.hdf5'
-## PCA
-pca_dir = 'pca'
-pca_model_filename = 'pca_model.hdf5'
-features_projected_dir = 'features_projected'
-features_projected_ext = '.hdf5'
-## PLDA
-plda_dir = 'plda'
-plda_model_filename = 'plda_model.hdf5'
+## models and scores
+model_filename = 'model.hdf5'
 models_dir = 'models'
 scores_nonorm_dir = 'scores'
+## Algorithms
+## PCA
+pca_dir = 'pca'
+## PLDA
+plda_dir = 'plda'
+## LDA
+lda_dir = 'lda'
+
 
 # Database/protocol to use
 db = xbob.db.multipie.Database()
@@ -69,6 +74,9 @@ block_ow = 4
 
 # PCA
 pca_n_outputs = 500
+
+# LDA
+lda_n_outputs = 64
 
 # PLDA
 plda_nf = 128 

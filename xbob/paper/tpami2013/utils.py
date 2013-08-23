@@ -100,10 +100,44 @@ def load_data_by_client(filenames_by_client, features_dir, features_ext):
   return data
 
 
+def enroll_mean_model(data):
+  """Enroll a generic mean model as the mean of the enrollment samples"""
+  return data.mean(axis=0)
+
+
+def compute_distance_scores(model, probe_tests, distance):
+  """Compute scores between a model and probe samples using a distance"""
+  A = numpy.ndarray(shape=(len(probe_tests),), dtype=numpy.float64)
+  import scipy.spatial.distance
+  if distance == 'euclidean':
+    dist = scipy.spatial.distance.euclidean
+  elif distance == 'chi_square':
+    dist = bob.math.chi_square
+  elif distance == 'cosine':
+    dist = scipy.spatial.distance.cosine
+  else:
+    raise RuntimeError("Unknow distance '%s' for computing scores." % distance)
+  for i in range(len(probe_tests)):
+    A[i] = -dist(model, probe_tests[i])
+  return A
+
+
 def save_machine(machine, output_filename):
   """Saves a machine into an HDF5File"""
   ensure_dir(os.path.dirname(output_filename))
   machine.save(bob.io.HDF5File(output_filename, 'w'))
+
+
+def save_model(model, output_filename):
+  """Saves a mean model into an HDF5File"""
+  ensure_dir(os.path.dirname(output_filename))
+  bob.io.save(model, output_filename)
+
+def load_model(input_filename):
+  """Loads a mean model fron an HDF5File"""
+  if not os.path.exists(input_filename):
+    raise RuntimeError("Cannot find model %s" % (input_filename))
+  return bob.io.load(input_filename)
 
 
 def split_list(input_list, nb_unit_per_sublist):

@@ -42,10 +42,12 @@ def main():
      dest='world_nshots', default=0, help='The maximum number of samples per identity to use, to train the PLDA model. Default is to use all possible samples')
   parser.add_argument('--output-dir', metavar='STR', type=str,
       dest='output_dir', default='/idiap/temp/lelshafey/plda-multipie', help='The base output directory for everything (models, scores, etc.).')
-  parser.add_argument('--pca-dir', metavar='STR', type=str,
-      dest='pca_dir', default=None, help='The subdirectory where the PCA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+  parser.add_argument('--features-dir', metavar='STR', type=str,
+      dest='features_dir', default=None, help='The subdirectory (wrt. to output_dir) where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('--plda-dir', metavar='STR', type=str,
       dest='plda_dir', default=None, help='The subdirectory where the PLDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+  parser.add_argument('--plda-model-filename', metavar='STR', type=str,
+      dest='plda_model_filename', default=None, help='The filename of the PLDABase model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-g', '--group', metavar='STR', type=str, nargs='+',
       dest='group', default=['dev','eval'], help='Database group (\'dev\' or \'eval\') for which to enroll models and compute scores.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
@@ -61,10 +63,13 @@ def main():
   else: plda_nf = args.nf
   if args.ng == 0: plda_ng = config.plda_ng
   else: plda_ng = args.ng
-  if not args.pca_dir: pca_dir = config.pca_dir
-  else: pca_dir = args.pca_dir
-  if not args.plda_dir: plda_dir = config.plda_dir
-  else: plda_dir = args.plda_dir
+  # Directories containing the features and the PLDA model
+  if args.features_dir: features_dir = args.features_dir
+  else: features_dir = config.features_dir
+  if args.plda_dir: plda_dir = args.plda_dir
+  else: plda_dir = config.plda_dir
+  if args.plda_model_filename: plda_model_filename = args.plda_model_filename
+  else: plda_model_filename = config.model_filename
   if utils.check_string(args.group): groups = [args.group]
   else: groups = args.group
 
@@ -81,8 +86,9 @@ def main():
                   '--ng=%d' % plda_ng,
                   '--world-nshots=%d' % args.world_nshots,
                   '--output-dir=%s' % args.output_dir,
-                  '--pca-dir=%s' % pca_dir,
+                  '--features-dir=%s' % features_dir,
                   '--plda-dir=%s' % plda_dir,
+                  '--plda-model-filename=%s' % plda_model_filename,
                  ]
   if args.force: cmd_pldabase.append('--force')
   if args.grid: 
@@ -102,8 +108,9 @@ def main():
                   '--config-file=%s' % args.config_file, 
                   '--group=%s' % group,
                   '--output-dir=%s' % args.output_dir,
-                  '--pca-dir=%s' % pca_dir,
+                  '--features-dir=%s' % features_dir,
                   '--plda-dir=%s' % plda_dir,
+                  '--plda-model-filename=%s' % plda_model_filename,
                  ]
     if args.force: cmd_enroll.append('--force')
     if args.grid: 
@@ -129,8 +136,9 @@ def main():
                   '--config-file=%s' % args.config_file, 
                   '--group=%s' % group,
                   '--output-dir=%s' % args.output_dir,
-                  '--pca-dir=%s' % pca_dir,
+                  '--features-dir=%s' % features_dir,
                   '--plda-dir=%s' % plda_dir,
+                  '--plda-model-filename=%s' % plda_model_filename,
                  ]
     if args.grid: 
       cmd_scores.append('--grid')
@@ -148,7 +156,7 @@ def main():
                 './bin/concatenate_scores.py', 
                 '--config-file=%s' % args.config_file, 
                 '--output-dir=%s' % args.output_dir,
-                '--plda-dir=%s' % plda_dir,
+                '--algorithm-dir=%s' % plda_dir,
                 '--grid'
               ]
     job_cat = utils.submit(jm, cmd_cat, dependencies=job_scores, array=None)

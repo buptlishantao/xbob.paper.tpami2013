@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
 # Laurent El Shafey <Laurent.El-Shafey@idiap.ch>
-# Wed Aug 21 16:56:10 CEST 2013
+# Wed Aug 21 16:58:13 CEST 2013
 #
 # Copyright (C) 2011-2013 Idiap Research Institute, Martigny, Switzerland
 #
@@ -20,8 +20,7 @@
 import os
 import argparse
 import imp 
-import subprocess
-from .. import utils
+from .. import features, utils
 
 def main():
 
@@ -44,44 +43,44 @@ def main():
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
-      default=False, help='It is currently not possible to paralellize this script, and hence useless for the time being.')
+      default=False, help='If set, assumes it is being run using a parametric grid job. It orders all ids to be processed and picks the one at the position given by ${SGE_TASK_ID}-1')
   args = parser.parse_args()
 
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
+
   # Directories containing the features
-  if args.features_dir: features_dir = args.features_dir
-  else: features_dir = config.lbph_features_dir
+  if args.features_dir: features_dir_ = args.features_dir
+  else: features_dir_ = config.features_dir
+  features_dir = os.path.join(args.output_dir, config.protocol, features_dir_)
 
-  # Let's create the job manager
+  # Database python objects (sorted by keys in case of SGE grid usage)
+  inputs_list = sorted(config.db.objects(protocol=config.protocol), key=lambda f: f.path)
+
+  # finally, if we are on a grid environment, just find what I have to process.
   if args.grid:
-    from gridtk.manager import JobManager
-    jm = JobManager()
-
-  # Extract the features
-  cmd_lbph_extract = [ 
-                      './bin/lbph_extraction.py', 
-                      '--config-file=%s' % args.config_file, 
-                      '--image-dir=%s' % args.img_input_dir,
-                      '--image-ext=%s' % args.img_input_ext,
-                      '--annotation-dir=%s' % args.pos_input_dir,
-                      '--annotation-ext=%s' % args.pos_input_ext,
-                      '--output-dir=%s' % args.output_dir,
-                      '--features-dir=%s' % features_dir,
-                     ]
-  if args.force: cmd_lbph_extract.append('--force')
-  if args.grid: 
-    cmd_lbph_extract.append('--grid')
     import math
-    # Database python objects (sorted by keys in case of SGE grid usage)
-    inputs_list = config.db.objects(protocol=config.protocol)
-    # Number of array jobs
-    n_array_jobs = int(math.ceil(len(inputs_list) / float(config.n_max_files_per_job)))  
-    job_lbph_extract = utils.submit(jm, cmd_lbph_extract, dependencies=None, array=(1,n_array_jobs,1), queue='q1d', mem='2G', hostname='!cicatrix')
-    print('submitted: %s' % job_lbph_extract)
-  else:
-    print('Running LBPH feature extraction...')
-    subprocess.call(cmd_lbph_extract)
+    pos = int(os.environ['SGE_TASK_ID']) - 1 
+    n_jobs = int(math.ceil(len(inputs_list) / float(config.n_max_files_per_job)))
+    
+    if pos >= n_jobs:
+      raise RuntimeError("Grid request for job %d on a setup with %d jobs" % (pos, n_jobs))
+    inputs_lits_g = utils.split_list(inputs_list, config.n_max_files_per_job)[pos]
+    inputs_list = inputs_lits_g
+
+  # Checks that the directories for storing the features exists
+  utils.ensure_dir(features_dir)
+
+  features.extract_lbph(inputs_list, args.img_input_dir, args.img_input_ext, args.pos_input_dir, args.pos_input_ext, features_dir, config.features_ext,
+                        # Cropping
+                        config.crop_eyes_d, config.crop_h, config.crop_w, config.crop_oh, config.crop_ow,
+                        # Tan Triggs
+                        config.gamma, config.sigma0, config.sigma1, config.size, config.threshold, config.alpha,
+                        # LBP
+                        config.radius, config.p_n, config.circular, config.to_average, config.add_average_bit, config.uniform, config.rot_inv,
+                        config.block_h, config.block_w, config.block_oh, config.block_ow, 
+                        force = args.force)
 
 if __name__ == "__main__": 
   main()
+ 

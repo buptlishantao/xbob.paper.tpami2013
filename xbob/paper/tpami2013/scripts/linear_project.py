@@ -20,7 +20,7 @@
 import os
 import argparse
 import imp
-from .. import pca, utils
+from .. import linear, utils
 import bob
 import numpy
 
@@ -34,8 +34,12 @@ def main():
       dest='output_dir', default='/idiap/temp/lelshafey/plda-multipie', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='STR', type=str,
       dest='features_dir', default=None, help='The subdirectory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
-  parser.add_argument('--pca-dir', metavar='STR', type=str,
-      dest='pca_dir', default=None, help='The subdirectory where the PCA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+  parser.add_argument('--features-projected-dir', metavar='STR', type=str,
+      dest='features_projected_dir', default=None, help='The subdirectory where the projected features will be stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+  parser.add_argument('--algorithm-dir', metavar='STR', type=str,
+      dest='algorithm_dir', default='pca', help='The subdirectory where the algorithm data are stored.')
+  parser.add_argument('--model-filename', metavar='STR', type=str,
+      dest='model_filename', default=None, help='The filename of the Linear model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -44,19 +48,19 @@ def main():
 
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
-
   # Directories containing the features, the PCA model and the projected features
   if args.features_dir: features_dir_ = args.features_dir
   else: features_dir_ = config.features_dir
   features_dir = os.path.join(args.output_dir, config.protocol, features_dir_)
-  if args.pca_dir: pca_dir_ = args.pca_dir
-  else: pca_dir_ = config.pca_dir
-  pca_model_filename = os.path.join(args.output_dir, config.protocol, pca_dir_, config.pca_model_filename)
-  features_projected_dir = os.path.join(args.output_dir, config.protocol, pca_dir_, config.features_projected_dir)
+  if args.features_projected_dir: features_projected_dir_ = args.features_projected_dir
+  else: features_projected_dir_ = config.features_projected_dir
+  features_projected_dir = os.path.join(args.output_dir, config.protocol, args.algorithm_dir, features_projected_dir_)
+  if args.model_filename: model_filename = args.model_filename
+  else: model_filename = config.model_filename
+  model_filename = os.path.join(args.output_dir, config.protocol, args.algorithm_dir, model_filename) 
 
   # Database python objects (sorted by keys in case of SGE grid usage)
-  inputs_list = config.db.objects(protocol=config.protocol)
-  inputs_list.sort(key=lambda x: x.id)
+  inputs_list = sorted(config.db.objects(protocol=config.protocol), key=lambda f: f.path) 
 
   # finally, if we are on a grid environment, just find what I have to process.
   if args.grid:
@@ -73,14 +77,14 @@ def main():
   utils.ensure_dir(features_projected_dir)
 
   # Loads the machine (linear projection matrix)
-  machine = pca.load_model(pca_model_filename)
+  machine = linear.load_model(model_filename)
 
   # Allocates an array for the projected data
   img_out = numpy.ndarray(shape=(machine.shape[1],), dtype=numpy.float64)
 
   for k in inputs_list:
     input_features_k = str(k.make_path(directory=features_dir, extension=config.features_ext))
-    output_features_k = str(k.make_path(directory=features_projected_dir, extension=config.features_projected_ext))
+    output_features_k = str(k.make_path(directory=features_projected_dir, extension=config.features_ext))
     if args.force == True and os.path.exists(output_features_k):
       print("Removing old features %s." % (output_features_k))
       os.remove(output_features_k)
@@ -92,7 +96,7 @@ def main():
       # Loads the data
       img_in = bob.io.load( input_features_k )
       # Projects the data
-      pca.project(img_in, machine, img_out)
+      linear.project(img_in, machine, img_out)
       # Saves the projected data
       utils.ensure_dir(os.path.dirname(str(output_features_k)))
       bob.io.save(img_out, output_features_k)

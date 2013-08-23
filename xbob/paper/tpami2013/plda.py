@@ -37,7 +37,7 @@ def train(data, d, nf, ng, n_iter,
   T.train(machine, data)
   return machine
 
-def enrol_model(data, pldabase):
+def enroll_model(data, pldabase):
   """Enrols a PLDA Machine for a given identity using the provided arrayset
      and trained PLDABase."""
   machine = bob.machine.PLDAMachine(pldabase)

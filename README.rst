@@ -318,7 +318,9 @@ Intel Core i7 CPU).
 .. note::
 
   If you compare your obtained figure with the Figure 2 of the published article, 
-  you will observe slight differences. This is caused by two different aspects:
+  you will observe slight differences. This does not affect at all the global
+  trends and conclusions shown in the article. This is caused by two different 
+  aspects:
 
   1. The features for the paper were generated using a version of Bob that is 
      unofficial (which means older than the first official release), whereas the 
@@ -363,12 +365,13 @@ evaluation script from the bob library as follows::
 
   $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda/scores/scores-eval -x
 
-This value corresponds to one of the PCA baseline reported on 
-Table 3 of the article (Once more, be aware of slight differences due 
-to the implementation changes in the feature extraction process). 
-These results are obtained for a PCA subspace of rank 200, which was 
-found to be the optimal PCA subspace size, when we tuned this parameter 
-using the initial LBPH features.
+This value corresponds to the one of the PCA baseline reported on 
+Table 3 of the article (Once more, be aware of differences due 
+to the implementation changes in the feature extraction process 
+and algorithm parameters that have not been kept). These results 
+are obtained for a PCA subspace of rank 2048, which was 
+found to be the optimal PCA subspace size, when we tuned this
+parameter using the LBPH features.
 
 .. note::
 

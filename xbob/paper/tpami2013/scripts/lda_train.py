@@ -92,11 +92,10 @@ def main():
     utils.save_machine(machine, lda_model_filename)
     if args.eig_filename:
       import numpy
-      eig_vals_s = numpy.ndarray(shape=(config.lda_n_outputs,), dtype=numpy.float64)
-      eig_vals_s = eig_vals[0:config.lda_n_outputs]
+      eig_vals_s = numpy.ndarray(shape=(lda_n_outputs,), dtype=numpy.float64)
+      eig_vals_s = eig_vals[0:lda_n_outputs]
       import bob
       bob.io.save(eig_vals_s, args.eig_filename)
     
-
 if __name__ == "__main__": 
   main()

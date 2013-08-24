@@ -5,7 +5,8 @@ Probabilistic Linear Discriminant Analysis Experiments
 This package contains scripts that shows how to use the implementation
 of the scalable formulation of Probabilistic Linear Discriminant Analysis 
 (PLDA), integrated into bob, as well as how to reproduce experiments of
-the article mentioned below. It is implemented and maintained via github
+the article mentioned below. It is implemented and maintained via `github
+<http://www.github.com/bioidiap/xbob.paper.tpami2013>`_.
 
 If you use this package and/or its results, please cite the following
 publications:
@@ -251,8 +252,8 @@ dimensional subspace using Principal Component Analysis (PCA)::
     $ ./bin/linear_project.py --features-dir features/lbph --algorithm-dir features --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
 
-PLDA modeling and scoring
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Proposed system: PLDA modeling and scoring
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 PLDA is then applied on the dimensionality reduced features.
 
@@ -290,8 +291,9 @@ following commands (instead of the previous one)::
   $ ./bin/experiment_plda_subworld.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
   $ ./bin/plot_figure2.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
-Then, the value of the HTER on Table 3 corresponds to the one, where the 
-full training set is used, and might similarly be obtained as follows::
+Then, the value of the HTER on Table 3 of the article (for the PLDA system) 
+corresponds to the one, where the full training set is used, and might 
+similarly be obtained as follows::
 
   $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/plda_subworld_76/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/plda_subworld_76/scores/scores-eval -x
 
@@ -329,8 +331,98 @@ Intel Core i7 CPU).
      on the order of the file used to build this matrix.
 
 
-Baseline: LBP histogram with Chi square scoring
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Baseline 1: PCA on the LBP histograms
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The LBP histogram features were used in combination with the PCA 
+classification technique (commonly called Eigenfaces in the face 
+recognition litterature).
+
+This involves three different steps:
+  1. PCA subspace training
+  2. Model enrollment
+  3. Scoring (with an Euclidean distance)
+
+The following command will perform all these steps::
+
+  $ ./bin/toolchain_pca.py --n-outputs 2048 --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+
+.. note::
+
+  Equivalently, this can also be achieved by running the following 
+  individual commands::
+
+    $ ./bin/pca_train.py --features-dir features/lbph --n-outputs 2048 --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/linear_project.py --features-dir features/lbph --algorithm-dir pca --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/meanmodel_enroll.py --features-dir pca/lbph_projected --algorithm-dir pca --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/distance_scores.py --features-dir pca/lbph_projected --algorithm-dir pca --distance euclidean --group dev --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/distance_scores.py --features-dir pca/lbph_projected --algorithm-dir pca --distance euclidean --group eval --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+
+Then, the HTER on the evaluation set can be obtained using the 
+evaluation script from the bob library as follows::
+
+  $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda/scores/scores-eval -x
+
+This value corresponds to one of the PCA baseline reported on 
+Table 3 of the article (Once more, be aware of slight differences due 
+to the implementation changes in the feature extraction process). 
+These results are obtained for a PCA subspace of rank 200, which was 
+found to be the optimal PCA subspace size, when we tuned this parameter 
+using the initial LBPH features.
+
+.. note::
+
+  In contrast to what one sentence of the article suggests, we did not 
+  apply the PCA baseline on the dimensionality-reduced PCA features.
+  This would mean to apply consecutively twice, the same PCA 
+  dimensionality reduction technique, which does not make much sense.
+  In contrast, we apply this PCA technique to the LBPH features,
+  tuning the PCA subspace size.
+
+
+Baseline 2: LDA on the PCA projected LBP histograms
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The PCA projected LBP histogram features considered for the PLDA system
+were also used in combination with the Fisher's LDA classification 
+technique (commonly called Fisherfaces in the face recognition 
+litterature).
+
+This involves three different steps:
+  1. LDA subspace training
+  2. Model enrollment
+  3. Scoring (with an Euclidean distance)
+
+The following command will perform all these steps::
+
+  $ ./bin/toolchain_lda.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+
+.. note::
+
+  Equivalently, this can also be achieved by running the following 
+  individual commands::
+
+    $ ./bin/lda_train.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/linear_project.py --algorithm-dir lda --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/meanmodel_enroll.py --features-dir lda/lbph_projected --algorithm-dir lda --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/distance_scores.py --features-dir lda/lbph_projected --algorithm-dir lda --distance euclidean --group dev --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/distance_scores.py --features-dir lda/lbph_projected --algorithm-dir lda --distance euclidean --group eval --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+
+Then, the HTER on the evaluation set can be obtained using the 
+evaluation script from the bob library as follows::
+
+  $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda/scores/scores-eval -x
+
+This value corresponds to the one of the LDA baseline reported on 
+Table 3 of the PLDA article (Once more, be aware of slight 
+differences due to the implementation changes in the feature 
+extraction process). These results are obtained for a LDA subspace 
+of rank 64, which was found to be the optimal LDA subspace size, 
+when we tuned this parameter using the initial LBPH features.
+
+
+Baseline 3: LBP histogram classification with Chi square scoring
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The LBP histogram features might be used in combination with a distance such
 as the Chi Square distance, to obtain a face recognition system.
@@ -357,49 +449,10 @@ evaluation script from the bob library as follows::
 
   $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lbph_chisquare/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lbph_chisquare/scores/scores-eval -x
 
-This value corresponds to the LBP histogram (chi square) value reported
-on Table 3 of the PLDA article (Once more, be aware of slight differences
-due to the implementation changes on the feature extraction process).
-
-
-Baseline: LDA on the PCA projected LBP histograms
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The PCA projected LBP histogram features were also used in combination with
-the Fisher's LDA classification technique (commonly called Fisherfaces in
-the face recognition litterature).
-
-This involves three different steps:
-  1. LDA subspace training
-  2. Model enrollment
-  3. Scoring (with an Euclidean distance)
-
-The following command will perform all these steps::
-
-  $ ./bin/toolchain_lda.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-
-.. note::
-
-  Equivalently, this can also be achieved by running the following 
-  individual commands::
-
-    $ ./bin/lda_train.py --lda-dir lda --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/linear_project.py --lda-dir lda --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/meanmodel_enroll.py --features-dir lda/lbph_projected --algorithm-dir lda --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/distance_scores.py --features-dir lda/lbph_projected --algorithm-dir lda --distance euclidean --group dev --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/distance_scores.py --features-dir lda/lbph_projected --algorithm-dir lda --distance euclidean --group eval --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-
-Then, the HTER on the evaluation set can be obtained using the 
-evaluation script from the bob library as follows::
-
-  $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda/scores/scores-eval -x
-
-This value corresponds to the LDA baseline reported on Table 3 of the 
-PLDA article (Once more, be aware of slight differences due to the 
-implementation changes in the feature extraction process). These results are 
-obtained for a LDA subspace of rank 64, which was found as an optimal LDA 
-subspace size, when we tuned this parameter using the initial features of
-the paper.
+This value corresponds to the one of the LBP histogram (chi square) 
+baseline reported on Table 3 of article (Once more, be aware of 
+slight differences due to the implementation changes on the feature 
+extraction process).
 
 
 Reporting bugs
@@ -409,7 +462,7 @@ The package is open source and maintained via `github
 <http://www.github.com/bioidiap/xbob.paper.tpami2013>`_.
 
 If you are facing technical issues to be able to run the scripts
-of this package, please send a message on the `bob's mailing list
+of this package, please send a message on the `Bob's mailing list
 <https://groups.google.com/forum/#!forum/bob-devel>`_.
 
 If you find a problem wrt. to this satelitte package, you can file

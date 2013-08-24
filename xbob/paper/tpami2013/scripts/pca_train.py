@@ -79,14 +79,14 @@ def main():
     training_data = utils.load_data(training_filenames, features_dir, config.features_ext)
 
     # Trains a PCAMachine
-    (machine, eig_vals) = linear.pca_train(training_data, config.pca_n_outputs)
+    (machine, eig_vals) = linear.pca_train(training_data, pca_n_outputs)
     
     # Saves the machine
     utils.save_machine(machine, pca_model_filename)
     if args.eig_filename:
       import numpy
-      eig_vals_s = numpy.ndarray(shape=(config.pca_n_outputs,), dtype=numpy.float64)
-      eig_vals_s = eig_vals[0:config.pca_n_outputs]
+      eig_vals_s = numpy.ndarray(shape=(pca_n_outputs,), dtype=numpy.float64)
+      eig_vals_s = eig_vals[0:pca_n_outputs]
       import bob
       bob.io.save(eig_vals_s, args.eig_filename)
     

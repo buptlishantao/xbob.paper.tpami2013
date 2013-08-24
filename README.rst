@@ -459,6 +459,16 @@ slight differences due to the implementation changes on the feature
 extraction process).
 
 
+Summarizing the results as in Table 3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you successfully run all the previous experiments, you could
+get a summary of the performances, as in Table 3, by running the
+following command::
+
+  $ ./bin/plot_table3.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+
+
 Reporting bugs
 --------------
 

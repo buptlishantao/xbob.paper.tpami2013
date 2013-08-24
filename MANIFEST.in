@@ -1,1 +1,1 @@
-include README.rst buildout.cfg
+include README.rst bootstrap.py buildout.cfg 

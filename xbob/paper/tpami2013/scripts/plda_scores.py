@@ -90,7 +90,7 @@ def main():
     
     # Loops over the model ids
     for model_id in models_ids:
-      print("%s" % model_id)
+      print("Computing scores for model '%s'." % model_id)
       if args.grid:
         # Saves model_scores to text file
         sc_nonorm_filename = os.path.join(args.output_dir, config.protocol, plda_dir_, config.scores_nonorm_dir, 

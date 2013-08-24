@@ -5,7 +5,7 @@ Probabilistic Linear Discriminant Analysis Experiments
 This package contains scripts that shows how to use the implementation
 of the scalable formulation of Probabilistic Linear Discriminant Analysis 
 (PLDA), integrated into bob, as well as how to reproduce experiments of
-the article mentioned below.
+the article mentioned below. It is implemented and maintained via github
 
 If you use this package and/or its results, please cite the following
 publications:
@@ -182,9 +182,11 @@ It is currently possible to reproduce the experiments on Multi-PIE using
 the PLDA algorithm. In particular, the Figure 2 of the article can be 
 easily reproduced, by following the steps described below.
 
-The experiments using the three baseline systems reported on Table 3
-may be integrated later on in this package, as well as the experiments
-on the LFW database.
+It is also possible to reproduce the LBP histogram baseline using the 
+Chi square distance for scoring. The experiments using the two other
+baseline systems reported on Table 3 may be integrated later on in 
+this package, as well as the experiments on the LFW database.
+
 
 Note for Grid Users
 ===================
@@ -219,8 +221,16 @@ Feature extraction
 The following command will extract LBP histograms features.
 You should set the paths to the data according to your own environment::
 
-  $ ./bin/lbph_features.py --image-dir /PATH/TO/MULTIPIE/IMAGES --annotation-dir /PATH/TO/MULTIPIE/ANNOTATIONS --output-dir /PATH/TO/OUTPUT_DIR/
+  $ ./bin/lbph_features.py --image-dir /PATH/TO/MULTIPIE/IMAGES --annotation-dir /PATH/TO/MULTIPIE/ANNOTATIONS --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
+.. note::
+
+  The output directory /PATH/TO/MULTIPIE/OUTPUT_DIR/ is a base directory
+  for the output of all experiments on Multi-PIE. Make sure to use the 
+  same directory for all the experiments below, otherwise the following
+  commands might not work as expected. You can look at the options
+  of the scripts if you need more flexibility or want to use alternate
+  features vectors, etc.
 
 Dimensionality reduction
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -228,15 +238,15 @@ Dimensionality reduction
 Once the features has been extracted, they are projected into a lower
 dimensional subspace using Principal Component Analysis (PCA)::
   
-  $ ./bin/pca_features.py --output-dir /PATH/TO/OUTPUT_DIR/
+  $ ./bin/pca_features.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
 .. note::
 
   Equivalently, this can also be achieved by running the following 
   individual commands::
 
-    $ ./bin/pca_train.py --output-dir /PATH/TO/OUTPUT_DIR/
-    $ ./bin/pca_project.py --output-dir /PATH/TO/OUTPUT_DIR/
+    $ ./bin/pca_train.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/pca_project.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
 
 PLDA modeling and scoring
@@ -251,28 +261,37 @@ This involves three different steps:
 
 The following command will perform all these steps::
 
-  $ ./bin/toolchain_plda.py --output-dir /PATH/TO/OUTPUT_DIR/
+  $ ./bin/toolchain_plda.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
 .. note::
 
   Equivalently, this can also be achieved by running the following 
   individual commands::
 
-    $ ./bin/plda_train.py --output-dir /PATH/TO/OUTPUT_DIR/
-    $ ./bin/plda_enroll.py --output-dir /PATH/TO/OUTPUT_DIR/
-    $ ./bin/plda_scores.py --group dev --output-dir /PATH/TO/OUTPUT_DIR/
-    $ ./bin/plda_scores.py --group eval --output-dir /PATH/TO/OUTPUT_DIR/
+    $ ./bin/plda_train.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/plda_enroll.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/plda_scores.py --group dev --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/plda_scores.py --group eval --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
 Then, the HTER on the evaluation set can be obtained using the 
 evaluation script from the bob library as follows::
 
-  $ ./bin/bob_compute_perf.py -d /PATH/TO/OUTPUT_DIR/U/plda/scores/scores-dev -t /PATH/TO/OUTPUT_DIR/U/plda/scores/scores-eval -x
+  $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/plda/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/plda/scores/scores-eval -x
 
-If you want to reproduce the Figure 2 of the PLDA article mentioned above,
-you can run the following commands (instead of the previous one)::
+The HTER on the evaluation set, when using the the EER on the development
+set as the criterium for the threshold, corresponds to the PLDA value reported
+on Table 3 of the article mentioned above.
 
-  $ ./bin/experiment_plda_subworld.py --output-dir /PATH/TO/OUTPUT_DIR/
-  $ ./bin/plot_figure2.py --output-dir /PATH/TO/OUTPUT_DIR/
+If you want to reproduce the Figure 2 of the article, you can run the 
+following commands (instead of the previous one)::
+
+  $ ./bin/experiment_plda_subworld.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+  $ ./bin/plot_figure2.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+
+Then, the value of the HTER on Table 3 corresponds to the one, where the 
+full training set is used, and might similarly be obtained as follows::
+
+  $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/plda_subworld_76/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/plda_subworld_76/scores/scores-eval -x
 
 .. note::
 
@@ -283,9 +302,9 @@ you can run the following commands (instead of the previous one)::
   if your CPU has several cores::
 
     $ for k in 2 4 6 8 10 14 19 29 38 48 57 67 76; do \
-        ./bin/plda.py --output-dir /PATH/TO/OUTPUT_DIR/ --world-nshots $k --plda-dir plda_subworld_${k}; \
+        ./bin/plda.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/ --world-nshots $k --plda-dir plda_subworld_${k}; \
       done
-    $ ./bin/plot_figure2.py --output-dir /PATH/TO/OUTPUT_DIR/
+    $ ./bin/plot_figure2.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
 The previous commands will run the PLDA toolchain several times for a varying
 number of training samples. Please note, that this will require a lot of time
@@ -306,6 +325,39 @@ Intel Core i7 CPU).
   2. The order of the files obtained (and now sorted) from the database API.
      For instance, when applying PCA, the input matrix will be different depending
      on the order of the file used to build this matrix.
+
+
+LBP histogram with Chi square scoring
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The LBP histogram features might be used in combination with a distance such
+as the Chi Square distance, to obtain a face recognition system.
+
+This involves two different steps:
+  1. Model enrollment
+  2. Scoring
+
+The following command will perform all these steps::
+
+  $ ./bin/toolchain_lbph.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+
+.. note::
+
+  Equivalently, this can also be achieved by running the following 
+  individual commands::
+
+    $ ./bin/meanmodel_enroll.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/meanmodel_enroll.py --group dev --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/meanmodel_enroll.py --group eval --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+
+Then, the HTER on the evaluation set can be obtained using the 
+evaluation script from the bob library as follows::
+
+  $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lbph_chisquare/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lbph_chisquare/scores/scores-eval -x
+
+This value corresponds to the LBP histogram (chi square) value reported
+on Table 3 of the PLDA article (Once more, be aware of slight differences
+due to the implementation changes on the feature extraction process).
 
 
 Reporting bugs

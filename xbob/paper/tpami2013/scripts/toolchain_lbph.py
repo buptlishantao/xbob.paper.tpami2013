@@ -18,7 +18,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-"""Submits all feature creation jobs to the Idiap grid"""
+"""Apply the LBPH chi square toolchain to a set of features"""
 
 import math
 import imp
@@ -40,8 +40,8 @@ def main():
       dest='output_dir', default='/idiap/temp/lelshafey/plda-multipie', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='STR', type=str,
       dest='features_dir', default=None, help='The subdirectory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
-  parser.add_argument('--algorithm-dir', metavar='FILE', type=str,
-      dest='algorithm_dir', default='lbph_chi_square', help='The relative directory of the algorithm that will contain the models and the scores.')
+  parser.add_argument('--lbph-dir', metavar='FILE', type=str,
+      dest='lbph_dir', default='lbph_chisquare', help='The relative directory of the LBPH that will contain the models and the scores.')
   parser.add_argument('--distance', metavar='STR', type=str,
       dest='distance', default='chi_square', help='The distance to use, when computing scores.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
@@ -53,10 +53,8 @@ def main():
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
   # Update command line options if required
-  if not args.features_dir: features_dir = config.features_dir
+  if not args.features_dir: features_dir = config.lbph_features_dir
   else: features_dir = args.features_dir
-  if not args.algorithm_dir: algorithm_dir = config.algorithm_dir
-  else: algorithm_dir = args.algorithm_dir
   if utils.check_string(args.group): groups = [args.group]
   else: groups = args.group
 
@@ -75,7 +73,7 @@ def main():
                   '--group=%s' % group,
                   '--output-dir=%s' % args.output_dir,
                   '--features-dir=%s' % features_dir,
-                  '--algorithm-dir=%s' % algorithm_dir,
+                  '--algorithm-dir=%s' % args.lbph_dir,
                  ]
     if args.force: cmd_enroll.append('--force')
     if args.grid: 
@@ -102,7 +100,7 @@ def main():
                   '--group=%s' % group,
                   '--output-dir=%s' % args.output_dir,
                   '--features-dir=%s' % features_dir,
-                  '--algorithm-dir=%s' % algorithm_dir,
+                  '--algorithm-dir=%s' % args.lbph_dir,
                   '--distance=%s' % args.distance,
                  ]
     if args.grid: 
@@ -121,7 +119,7 @@ def main():
                 './bin/concatenate_scores.py', 
                 '--config-file=%s' % args.config_file, 
                 '--output-dir=%s' % args.output_dir,
-                '--plda-dir=%s' % algorithm_dir,
+                '--algorithm-dir=%s' % args.lbph_dir,
                 '--grid'
               ]
     job_cat = utils.submit(jm, cmd_cat, dependencies=job_scores, array=None)

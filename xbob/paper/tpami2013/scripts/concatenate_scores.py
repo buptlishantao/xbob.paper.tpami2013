@@ -33,7 +33,7 @@ def main():
   parser.add_argument('--output-dir', metavar='FILE', type=str,
       dest='output_dir', default='/idiap/temp/lelshafey/plda-multipie', help='The base output directory for everything (features, models, scores, etc.).')
   parser.add_argument('--algorithm-dir', metavar='STR', type=str,
-      dest='algorithm_dir', default=None, help='The subdirectory where the data for the given algorithm are stored.')
+      dest='algorithm_dir', default='default_algorithm', help='The subdirectory where the data for the given algorithm are stored.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',

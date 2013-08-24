@@ -35,7 +35,7 @@ def main():
   parser.add_argument('--features-dir', metavar='FILE', type=str,
       dest='features_dir', default=None, help='The relative directory that contains the features to use.')
   parser.add_argument('--algorithm-dir', metavar='FILE', type=str,
-      dest='algorithm_dir', default='lbph_chi2', help='The relative directory of the algorithm that will contain the models and the scores.')
+      dest='algorithm_dir', default='default_algorithm', help='The relative directory of the algorithm that will contain the models and the scores.')
   parser.add_argument('--distance', metavar='STR', type=str,
       dest='distance', default='euclidean', help='The distance to use, when computing scores.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
@@ -85,7 +85,7 @@ def main():
   else:
     # Loops over the model ids
     for model_id in models_ids:
-      print("%s" % model_id)
+      print("Computing score for model '%s'." % model_id)
       if args.grid:
         # Saves model_scores to text file
         sc_nonorm_filename = os.path.join(args.output_dir, config.protocol, args.algorithm_dir, config.scores_nonorm_dir, 

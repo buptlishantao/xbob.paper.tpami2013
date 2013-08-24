@@ -34,9 +34,9 @@ def main():
   parser.add_argument('--output-dir', metavar='FILE', type=str,
       dest='output_dir', default='/idiap/temp/lelshafey/plda-multipie', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='FILE', type=str,
-      dest='features_dir', default='pca/features_projected', help='The relative directory that contains the features to use.')
+      dest='features_dir', default=None, help='The relative directory that contains the features to use.')
   parser.add_argument('--algorithm-dir', metavar='FILE', type=str,
-      dest='algorithm_dir', default='lbph_chi2', help='The relative directory of the algorithm that will contain the models and the scores.')
+      dest='algorithm_dir', default='default_algorithm', help='The relative directory of the algorithm that will contain the models and the scores.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -45,7 +45,9 @@ def main():
 
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
-  # Update command line options if required
+  # Directories containing the features and the PLDA model
+  if args.features_dir: features_dir_ = args.features_dir
+  else: features_dir_ = config.features_dir
   if utils.check_string(args.group): groups = [args.group]
   else: groups = args.group
 

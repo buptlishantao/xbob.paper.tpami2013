@@ -22,7 +22,7 @@ from setuptools import setup, find_packages
 setup(
 
     name='xbob.paper.tpami2013',
-    version='0.2.0a0',
+    version='0.2.0a1',
     description='Example on how to use the scalable implementation of PLDA and how to reproduce experiments of the article',
     url='http://pypi.python.org/pypi/xbob.paper.tpami2013',
     license='GPLv3',
@@ -57,6 +57,9 @@ setup(
         'toolchain_plda.py = xbob.paper.tpami2013.scripts.toolchain_plda:main',
         'experiment_plda_subworld.py = xbob.paper.tpami2013.scripts.experiment_plda_subworld:main',
         'plot_figure2.py = xbob.paper.tpami2013.scripts.plot_figure2:main',
+        'meanmodel_enroll.py = xbob.paper.tpami2013.scripts.meanmodel_enroll:main',
+        'distance_scores.py = xbob.paper.tpami2013.scripts.distance_scores:main',
+        'toolchain_lbph.py = xbob.paper.tpami2013.scripts.toolchain_lbph:main',
         ],
       },
 

@@ -74,6 +74,9 @@ publications:
     }
 
 
+.. contents::
+
+
 Installation
 ------------
 
@@ -180,12 +183,11 @@ Reproducing experiments
 
 It is currently possible to reproduce the experiments on Multi-PIE using
 the PLDA algorithm. In particular, the Figure 2 of the article can be 
-easily reproduced, by following the steps described below.
+easily reproduced, by following the steps described below, as well as
+the HTER reported on Table 3.
 
-It is also possible to reproduce the LBP histogram baseline using the 
-Chi square distance for scoring. The experiments using the two other
-baseline systems reported on Table 3 may be integrated later on in 
-this package, as well as the experiments on the LFW database.
+The experiments that make use of the LFW database may be integrated
+later on in this package.
 
 
 Note for Grid Users
@@ -245,8 +247,8 @@ dimensional subspace using Principal Component Analysis (PCA)::
   Equivalently, this can also be achieved by running the following 
   individual commands::
 
-    $ ./bin/pca_train.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/pca_project.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/pca_train.py --features-dir features/lbph --pca-dir features --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/linear_project.py --features-dir features/lbph --algorithm-dir features --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
 
 PLDA modeling and scoring
@@ -327,15 +329,15 @@ Intel Core i7 CPU).
      on the order of the file used to build this matrix.
 
 
-LBP histogram with Chi square scoring
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Baseline: LBP histogram with Chi square scoring
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The LBP histogram features might be used in combination with a distance such
 as the Chi Square distance, to obtain a face recognition system.
 
 This involves two different steps:
   1. Model enrollment
-  2. Scoring
+  2. Scoring (with a chi square distance)
 
 The following command will perform all these steps::
 
@@ -346,9 +348,9 @@ The following command will perform all these steps::
   Equivalently, this can also be achieved by running the following 
   individual commands::
 
-    $ ./bin/meanmodel_enroll.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/meanmodel_enroll.py --group dev --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/meanmodel_enroll.py --group eval --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/meanmodel_enroll.py --features-dir features/lbph --algorithm-dir lbph_chisquare --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/distance_scores.py --features-dir features/lbph --algorithm-dir lbph_chisquare --distance chi_square --group dev --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/distance_scores.py --features-dir features/lbph --algorithm-dir lbph_chisquare --distance chi_square --group eval --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
 Then, the HTER on the evaluation set can be obtained using the 
 evaluation script from the bob library as follows::
@@ -360,21 +362,63 @@ on Table 3 of the PLDA article (Once more, be aware of slight differences
 due to the implementation changes on the feature extraction process).
 
 
+Baseline: LDA on the PCA projected LBP histograms
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The PCA projected LBP histogram features were also used in combination with
+the Fisher's LDA classification technique (commonly called Fisherfaces in
+the face recognition litterature).
+
+This involves three different steps:
+  1. LDA subspace training
+  2. Model enrollment
+  3. Scoring (with an Euclidean distance)
+
+The following command will perform all these steps::
+
+  $ ./bin/toolchain_lda.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+
+.. note::
+
+  Equivalently, this can also be achieved by running the following 
+  individual commands::
+
+    $ ./bin/lda_train.py --lda-dir lda --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/linear_project.py --lda-dir lda --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/meanmodel_enroll.py --features-dir lda/lbph_projected --algorithm-dir lda --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/distance_scores.py --features-dir lda/lbph_projected --algorithm-dir lda --distance euclidean --group dev --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/distance_scores.py --features-dir lda/lbph_projected --algorithm-dir lda --distance euclidean --group eval --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+
+Then, the HTER on the evaluation set can be obtained using the 
+evaluation script from the bob library as follows::
+
+  $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda/scores/scores-eval -x
+
+This value corresponds to the LDA baseline reported on Table 3 of the 
+PLDA article (Once more, be aware of slight differences due to the 
+implementation changes in the feature extraction process). These results are 
+obtained for a LDA subspace of rank 64, which was found as an optimal LDA 
+subspace size, when we tuned this parameter using the initial features of
+the paper.
+
+
 Reporting bugs
 --------------
 
-The package is open source and maintained via github.
+The package is open source and maintained via `github 
+<http://www.github.com/bioidiap/xbob.paper.tpami2013>`_.
 
 If you are facing technical issues to be able to run the scripts
 of this package, please send a message on the `bob's mailing list
 <https://groups.google.com/forum/#!forum/bob-devel>`_.
 
-If you find a problem wrt. to this satelitte package, please open
-an issue on the `github webpage of this satellite package
-<http://www.github.com/bioidiap/xbob.paper.tpami2013>`_ .
+If you find a problem wrt. to this satelitte package, you can file
+a ticket on the `github issue tracker
+<http://www.github.com/bioidiap/xbob.paper.tpami2013/issues>`_  of this
+satellite package.
 
-If you find a problem wrt. to the PLDA implementation, please open
-an issue on `Bob's github webpage <http://www.github.com/idiap/bob>`_ .
+If you find a problem wrt. to the PLDA implementation, you can file
+an ticket on `Bob's issue tracker <http://www.github.com/idiap/bob/issues>`_ .
 
 Please follow `these guidelines 
 <http://www.idiap.ch/software/bob/docs/releases/last/sphinx/html/TicketReportingDev.html>`_

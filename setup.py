@@ -48,6 +48,7 @@ setup(
         'lbph_extraction.py = xbob.paper.tpami2013.scripts.lbph_extraction:main',
         'lbph_features.py = xbob.paper.tpami2013.scripts.lbph_features:main',
         'pca_train.py = xbob.paper.tpami2013.scripts.pca_train:main',
+        'lda_train.py = xbob.paper.tpami2013.scripts.lda_train:main',
         'linear_project.py = xbob.paper.tpami2013.scripts.linear_project:main',
         'pca_features.py = xbob.paper.tpami2013.scripts.pca_features:main',
         'plda_train.py = xbob.paper.tpami2013.scripts.plda_train:main',
@@ -60,6 +61,7 @@ setup(
         'meanmodel_enroll.py = xbob.paper.tpami2013.scripts.meanmodel_enroll:main',
         'distance_scores.py = xbob.paper.tpami2013.scripts.distance_scores:main',
         'toolchain_lbph.py = xbob.paper.tpami2013.scripts.toolchain_lbph:main',
+        'toolchain_lda.py = xbob.paper.tpami2013.scripts.toolchain_lda:main',
         ],
       },
 

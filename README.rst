@@ -4,8 +4,9 @@ Probabilistic Linear Discriminant Analysis Experiments
 
 This package contains scripts that shows how to use the implementation
 of the scalable formulation of Probabilistic Linear Discriminant Analysis 
-(PLDA), integrated into bob, as well as how to reproduce experiments of
-the article mentioned below. It is implemented and maintained via `github
+(PLDA), integrated into `Bob <http://www.idiap.ch/software/bob>`_, as 
+well as how to reproduce experiments of the article mentioned below. 
+It is implemented and maintained via `github 
 <http://www.github.com/bioidiap/xbob.paper.tpami2013>`_.
 
 If you use this package and/or its results, please cite the following

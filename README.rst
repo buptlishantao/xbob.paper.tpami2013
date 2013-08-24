@@ -191,6 +191,10 @@ the HTER reported on Table 3.
 The experiments that make use of the LFW database may be integrated
 later on in this package.
 
+Be aware that all the scripts provide several optional arguments that
+are very useful if you wish at using your own features or your own
+parameters.
+
 
 Note for Grid Users
 ===================
@@ -206,6 +210,7 @@ following commands on the SGE infrastructure, by applying the '--grid'
 flag to any command. This may also work on other locations with an SGE 
 infrastructure, but will likely require some configuration changes in the 
 gridtk utility.
+
 
 Multi-PIE dataset
 =================
@@ -235,6 +240,7 @@ You should set the paths to the data according to your own environment::
   commands might not work as expected. You can look at the options
   of the scripts if you need more flexibility or want to use alternate
   features vectors, etc.
+
 
 Dimensionality reduction
 ~~~~~~~~~~~~~~~~~~~~~~~~

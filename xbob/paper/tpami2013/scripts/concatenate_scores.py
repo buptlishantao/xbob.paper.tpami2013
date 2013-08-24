@@ -27,11 +27,11 @@ def main():
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,
-      dest='config_file', default='xbob/paper/tpami2013/config.py', help='Filename of the configuration file to use to run the script on the grid (defaults to "%(default)s")')
+      dest='config_file', default='xbob/paper/tpami2013/config_multipie.py', help='Filename of the configuration file to use to run the script on the grid (defaults to "%(default)s")')
   parser.add_argument('-g', '--group', metavar='LIST', type=str,
       dest='group', default=['dev','eval'], help='Database group (\'dev\' or \'eval\') for which to retrieve models (defaults to "%(default)s").')
   parser.add_argument('--output-dir', metavar='FILE', type=str,
-      dest='output_dir', default='/idiap/temp/lelshafey/plda-multipie', help='The base output directory for everything (features, models, scores, etc.).')
+      dest='output_dir', default='output', help='The base output directory for everything (features, models, scores, etc.).')
   parser.add_argument('--algorithm-dir', metavar='STR', type=str,
       dest='algorithm_dir', default='default_algorithm', help='The subdirectory where the data for the given algorithm are stored.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',

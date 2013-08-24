@@ -32,13 +32,13 @@ def main():
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,
-      dest='config_file', default='xbob/paper/tpami2013/config.py', help='Filename of the configuration file to use to run the script on the grid (defaults to "%(default)s")')
+      dest='config_file', default='xbob/paper/tpami2013/config_multipie.py', help='Filename of the configuration file to use to run the script on the grid (defaults to "%(default)s")')
   parser.add_argument('--nf', metavar='INT', type=int,
      dest='nf', default=0, help='The dimensionality of the F subspace. It will overwrite the value in the configuration file if any. Default is the value in the configuration file')
   parser.add_argument('--ng', metavar='INT', type=int,
      dest='ng', default=0, help='The dimensionality of the G subspace. It will overwrite the value in the configuration file if any. Default is the value in the configuration file')
   parser.add_argument('--output-dir', metavar='STR', type=str,
-      dest='output_dir', default='/idiap/temp/lelshafey/plda-multipie', help='The base output directory for everything (models, scores, etc.).')
+      dest='output_dir', default='output', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='STR', type=str,
       dest='features_dir', default=None, help='The subdirectory (wrt. to output_dir) where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('--plda-dir', metavar='STR', type=str,

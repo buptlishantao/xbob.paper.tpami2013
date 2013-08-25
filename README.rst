@@ -145,8 +145,8 @@ Please note that this package also requires that bob (>= 1.2.0) is installed.
 
   The python shell used in the first line of the previous command set
   determines the python interpreter that will be used for all scripts developed
-  inside this package. Because this package makes use of `Bob
-  <http://idiap.github.com/bob>`_, you must make sure that the ``bootstrap.py``
+  inside this package. Because this package makes use of `Bob`,
+  you must make sure that the ``bootstrap.py``
   script is called with the **same** interpreter used to build Bob, or
   unexpected problems might occur.
 
@@ -201,8 +201,8 @@ Note for Grid Users
 
 At Idiap, we use the powerful Sun Grid Engine (SGE) to parallelize our 
 job submissions as much as we can. At the Biometrics group, we have developed 
-a little toolbox <http://pypi.python.org/pypi/gridtk> that can submit and 
-manage jobs at the Idiap computing grid through SGE. 
+a little toolbox `gridtk <http://pypi.python.org/pypi/gridtk>`_ that can 
+submit and manage jobs at the Idiap computing grid through SGE. 
 
 The following sections will explain how to reproduce the paper results in 
 single (non-gridified) jobs. If you are at Idiap, you could run the 
@@ -223,9 +223,9 @@ Getting the data
 ~~~~~~~~~~~~~~~~
 
 You first need to buy and download the Multi-PIE database:
-  <http://multipie.org/>
+  http://multipie.org/
 and to download the annotations available here:
-  <http://www.idiap.ch/resource/biometric/>
+  http://www.idiap.ch/resource/biometric/
 
 
 Feature extraction
@@ -495,7 +495,7 @@ a ticket on the `github issue tracker
 satellite package.
 
 If you find a problem wrt. to the PLDA implementation, you can file
-an ticket on `Bob's issue tracker <http://www.github.com/idiap/bob/issues>`_ .
+a ticket on `Bob's issue tracker <http://www.github.com/idiap/bob/issues>`_ .
 
 Please follow `these guidelines 
 <http://www.idiap.ch/software/bob/docs/releases/last/sphinx/html/TicketReportingDev.html>`_

@@ -215,6 +215,10 @@ gridtk utility.
 Multi-PIE dataset
 =================
 
+The experiments of this section are performed on the U protocol of the
+Multi-PIE dataset. The filelists associated with this protocol can be found
+on `this website <http://www.idiap.ch/resource/biometric>`_.
+
 Getting the data
 ~~~~~~~~~~~~~~~~
 

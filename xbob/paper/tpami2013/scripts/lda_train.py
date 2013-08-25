@@ -40,6 +40,8 @@ def main():
       dest='lda_model_filename', default=None, help='The filename of the LDA model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('--eigenvalues', metavar='FILE', type=str,
       dest='eig_filename', default=None, help='The file for storing the eigenvalues.')
+  parser.add_argument('-p', '--protocol', metavar='STR', type=str,
+      dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -51,15 +53,17 @@ def main():
   # Update command line options if required
   if args.n_outputs: lda_n_outputs = args.n_outputs
   else: lda_n_outputs = config.lda_n_outputs
+  if args.protocol: protocol = args.protocol
+  else: protocol = config.protocol
   # Directories containing the features and the LDA model
   if args.features_dir: features_dir_ = args.features_dir
   else: features_dir_ = config.features_dir
-  features_dir = os.path.join(args.output_dir, config.protocol, features_dir_)
+  features_dir = os.path.join(args.output_dir, protocol, features_dir_)
   if args.lda_dir: lda_dir_ = args.lda_dir
   else: lda_dir_ = config.lda_dir
   if args.lda_model_filename: lda_model_filename_ = args.lda_model_filename
   else: lda_model_filename_ = config.model_filename
-  lda_model_filename = os.path.join(args.output_dir, config.protocol, lda_dir_, lda_model_filename_)
+  lda_model_filename = os.path.join(args.output_dir, protocol, lda_dir_, lda_model_filename_)
 
   # Remove old file if required
   if args.force:
@@ -73,10 +77,10 @@ def main():
 
     # Get list of list of filenames to load
     training_filenames = []
-    train_models = sorted([model.id for model in config.db.models(groups='world', protocol=config.protocol)])
+    train_models = sorted([model.id for model in config.db.models(groups='world', protocol=protocol)])
     nfiles = 0
     for model_id in train_models:
-      train_data_m = sorted(config.db.objects(protocol=config.protocol, groups='world', model_ids=(model_id,)), key=lambda f: f.path)
+      train_data_m = sorted(config.db.objects(protocol=protocol, groups='world', model_ids=(model_id,)), key=lambda f: f.path)
       nfiles = nfiles + len(train_data_m)
       training_filenames.append(train_data_m)
     print("Number of identities: %d" % len(training_filenames))

@@ -42,6 +42,8 @@ def main():
       dest='plda_dir', default=None, help='The subdirectory where the PLDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('--plda-model-filename', metavar='STR', type=str,
       dest='plda_model_filename', default=None, help='The filename of the PLDABase model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+  parser.add_argument('-p', '--protocol', metavar='STR', type=str,
+      dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -55,15 +57,17 @@ def main():
   else: plda_nf = args.nf
   if args.ng: plda_ng = config.plda_ng
   else: plda_ng = args.ng
+  if args.protocol: protocol = args.protocol
+  else: protocol = config.protocol
   # Directories containing the features and the PLDA model
   if args.features_dir: features_dir_ = args.features_dir
   else: features_dir_ = config.features_dir
-  features_dir = os.path.join(args.output_dir, config.protocol, features_dir_)
+  features_dir = os.path.join(args.output_dir, protocol, features_dir_)
   if args.plda_dir: plda_dir_ = args.plda_dir
   else: plda_dir_ = config.plda_dir
   if args.plda_model_filename: plda_model_filename_ = args.plda_model_filename
   else: plda_model_filename_ = config.model_filename
-  plda_model_filename = os.path.join(args.output_dir, config.protocol, plda_dir_, plda_model_filename_)
+  plda_model_filename = os.path.join(args.output_dir, protocol, plda_dir_, plda_model_filename_)
 
   # Remove old file if required
   if args.force:
@@ -77,11 +81,11 @@ def main():
 
     # Get list of list of filenames to load
     training_filenames = []
-    train_models = sorted([model.id for model in config.db.models(groups='world', protocol=config.protocol)])
+    train_models = sorted([model.id for model in config.db.models(groups='world', protocol=protocol)])
     nfiles = 0
     for model_id in train_models:
-      if args.world_nshots != 0: train_data_m = config.db.objects(protocol=config.protocol, groups='world', model_ids=(model_id,), world_nshots=args.world_nshots) 
-      else: train_data_m = config.db.objects(protocol=config.protocol, groups='world', model_ids=(model_id,)) 
+      if args.world_nshots != 0: train_data_m = config.db.objects(protocol=protocol, groups='world', model_ids=(model_id,), world_nshots=args.world_nshots) 
+      else: train_data_m = config.db.objects(protocol=protocol, groups='world', model_ids=(model_id,)) 
       nfiles = nfiles + len(train_data_m)
       training_filenames.append(train_data_m)
     print("Number of identities: %d" % len(training_filenames))

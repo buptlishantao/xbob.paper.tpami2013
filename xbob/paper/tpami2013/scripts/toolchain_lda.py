@@ -49,6 +49,8 @@ def main():
       dest='lda_model_filename', default=None, help='The filename of the LDA model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('--distance', metavar='STR', type=str,
       dest='distance', default='euclidean', help='The distance to use, when computing scores.')
+  parser.add_argument('-p', '--protocol', metavar='STR', type=str,
+      dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -60,6 +62,8 @@ def main():
   # Update command line options if required
   if args.n_outputs: lda_n_outputs = args.n_outputs
   else: lda_n_outputs = config.lda_n_outputs
+  if args.protocol: protocol = args.protocol
+  else: protocol = config.protocol
   # Update command line options if required
   if not args.features_dir: features_dir = config.features_dir
   else: features_dir = args.features_dir
@@ -84,6 +88,7 @@ def main():
                   '--features-dir=%s' % features_dir,
                   '--lda-dir=%s' % lda_dir,
                   '--lda-model-filename=%s' % lda_model_filename,
+                  '--protocol=%s' % protocol,
                  ]
   if args.force: cmd_ldatrain.append('--force')
   if args.grid: 
@@ -103,11 +108,12 @@ def main():
                     '--features-dir=%s' % features_dir,
                     '--algorithm-dir=%s' % lda_dir,
                     '--model-filename=%s' % lda_model_filename,
+                    '--protocol=%s' % protocol,
                    ]
   if args.force: cmd_ldaproject.append('--force')
   if args.grid: 
     # Database python objects (sorted by keys in case of SGE grid usage)
-    inputs_list = config.db.objects(protocol=config.protocol)
+    inputs_list = config.db.objects(protocol=protocol)
     inputs_list.sort(key=lambda x: x.id)
     # Number of array jobs
     n_array_jobs = int(math.ceil(len(inputs_list) / float(config.n_max_files_per_job)))  
@@ -118,11 +124,11 @@ def main():
     print('Running LDA projection...')
     subprocess.call(cmd_ldaproject)
 
-  features_dir = os.path.join(args.output_dir, config.protocol, lda_dir, config.features_projected_dir)
+  features_dir = os.path.join(args.output_dir, protocol, lda_dir, config.features_projected_dir)
   # Generates the models 
   job_enroll = []
   for group in groups:
-    n_array_jobs = len(config.db.models(protocol=config.protocol, groups=groups))
+    n_array_jobs = len(config.db.models(protocol=protocol, groups=groups))
     cmd_enroll = [
                   './bin/meanmodel_enroll.py',
                   '--config-file=%s' % args.config_file, 
@@ -130,6 +136,7 @@ def main():
                   '--output-dir=%s' % args.output_dir,
                   '--features-dir=%s' % features_dir,
                   '--algorithm-dir=%s' % lda_dir,
+                  '--protocol=%s' % protocol,
                  ]
     if args.force: cmd_enroll.append('--force')
     if args.grid: 
@@ -145,9 +152,9 @@ def main():
   job_scores = []
   for group in groups:
     n_array_jobs = 0
-    model_ids = sorted([model.id for model in config.db.models(protocol=config.protocol, groups=group)])
+    model_ids = sorted([model.id for model in config.db.models(protocol=protocol, groups=group)])
     for model_id in model_ids:
-      n_probes_for_model = len(config.db.objects(groups=group, protocol=config.protocol, purposes='probe', model_ids=(model_id,)))
+      n_probes_for_model = len(config.db.objects(groups=group, protocol=protocol, purposes='probe', model_ids=(model_id,)))
       n_splits_for_model = int(math.ceil(n_probes_for_model / float(config.n_max_probes_per_job)))
       n_array_jobs += n_splits_for_model
     cmd_scores = [
@@ -158,6 +165,7 @@ def main():
                   '--features-dir=%s' % features_dir,
                   '--algorithm-dir=%s' % lda_dir,
                   '--distance=%s' % args.distance,
+                  '--protocol=%s' % protocol,
                  ]
     if args.grid: 
       cmd_scores.append('--grid')
@@ -176,6 +184,7 @@ def main():
                 '--config-file=%s' % args.config_file, 
                 '--output-dir=%s' % args.output_dir,
                 '--algorithm-dir=%s' % lda_dir,
+                '--protocol=%s' % protocol,
                 '--grid'
               ]
     job_cat = utils.submit(jm, cmd_cat, dependencies=job_scores, array=None)

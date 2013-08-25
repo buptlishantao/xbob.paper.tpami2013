@@ -34,21 +34,26 @@ def main():
       dest='output_dir', default='output', help='The base output directory for everything (features, models, scores, etc.).')
   parser.add_argument('--algorithm-dir', metavar='STR', type=str,
       dest='algorithm_dir', default='default_algorithm', help='The subdirectory where the data for the given algorithm are stored.')
+  parser.add_argument('-p', '--protocol', metavar='STR', type=str,
+      dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
-      default=False, help='If set, assumes it is being run using a parametric grid job. It orders all ids to be processed and picks the one at the position given by ${SGE_TASK_ID}-1')
+      default=False, help='It is currently not possible to paralellize this script, and hence useless for the time being.')
   args = parser.parse_args()
 
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
+  # Update command line options if required
+  if args.protocol: protocol = args.protocol
+  else: protocol = config.protocol
 
   N_MAX_SPLITS = 9999 # zfill is done with 4 zeros
   for group in args.group:
     # (sorted) list of models
-    models_ids = sorted([model.id for model in config.db.models(protocol=config.protocol, groups=group)])
+    models_ids = sorted([model.id for model in config.db.models(protocol=protocol, groups=group)])
 
-    sc_nonorm_filename = os.path.join(args.output_dir, config.protocol, args.algorithm_dir, config.scores_nonorm_dir, "scores-" + group)
+    sc_nonorm_filename = os.path.join(args.output_dir, protocol, args.algorithm_dir, config.scores_nonorm_dir, "scores-" + group)
     if args.force:
       print("Removing old scores file '%s'." % sc_nonorm_filename)
       utils.erase_if_exists(sc_nonorm_filename)
@@ -61,7 +66,7 @@ def main():
       for model_id in models_ids:
         for split_id in range(0,N_MAX_SPLITS): 
           # Loads and concatenates
-          split_path = os.path.join(args.output_dir, config.protocol, args.algorithm_dir, config.scores_nonorm_dir, group, str(model_id) + "_" + str(split_id).zfill(4) + ".txt")
+          split_path = os.path.join(args.output_dir, protocol, args.algorithm_dir, config.scores_nonorm_dir, group, str(model_id) + "_" + str(split_id).zfill(4) + ".txt")
           if split_id == 0 and not os.path.exists(split_path):
             raise RuntimeError("Cannot find file %s" % split_path)
           elif not os.path.exists(split_path):

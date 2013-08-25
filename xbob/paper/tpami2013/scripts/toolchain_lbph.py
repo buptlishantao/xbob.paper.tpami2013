@@ -44,6 +44,8 @@ def main():
       dest='lbph_dir', default='lbph_chisquare', help='The relative directory of the LBPH that will contain the models and the scores.')
   parser.add_argument('--distance', metavar='STR', type=str,
       dest='distance', default='chi_square', help='The distance to use, when computing scores.')
+  parser.add_argument('-p', '--protocol', metavar='STR', type=str,
+      dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -53,6 +55,8 @@ def main():
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
   # Update command line options if required
+  if args.protocol: protocol = args.protocol
+  else: protocol = config.protocol
   if not args.features_dir: features_dir = config.lbph_features_dir
   else: features_dir = args.features_dir
   if utils.check_string(args.group): groups = [args.group]
@@ -66,7 +70,7 @@ def main():
   # Generates the models 
   job_enroll = []
   for group in groups:
-    n_array_jobs = len(config.db.models(protocol=config.protocol, groups=groups))
+    n_array_jobs = len(config.db.models(protocol=protocol, groups=groups))
     cmd_enroll = [
                   './bin/meanmodel_enroll.py',
                   '--config-file=%s' % args.config_file, 
@@ -74,6 +78,7 @@ def main():
                   '--output-dir=%s' % args.output_dir,
                   '--features-dir=%s' % features_dir,
                   '--algorithm-dir=%s' % args.lbph_dir,
+                  '--protocol=%s' % protocol,
                  ]
     if args.force: cmd_enroll.append('--force')
     if args.grid: 
@@ -89,9 +94,9 @@ def main():
   job_scores = []
   for group in groups:
     n_array_jobs = 0
-    model_ids = sorted([model.id for model in config.db.models(protocol=config.protocol, groups=group)])
+    model_ids = sorted([model.id for model in config.db.models(protocol=protocol, groups=group)])
     for model_id in model_ids:
-      n_probes_for_model = len(config.db.objects(groups=group, protocol=config.protocol, purposes='probe', model_ids=(model_id,)))
+      n_probes_for_model = len(config.db.objects(groups=group, protocol=protocol, purposes='probe', model_ids=(model_id,)))
       n_splits_for_model = int(math.ceil(n_probes_for_model / float(config.n_max_probes_per_job)))
       n_array_jobs += n_splits_for_model
     cmd_scores = [
@@ -102,6 +107,7 @@ def main():
                   '--features-dir=%s' % features_dir,
                   '--algorithm-dir=%s' % args.lbph_dir,
                   '--distance=%s' % args.distance,
+                  '--protocol=%s' % protocol,
                  ]
     if args.grid: 
       cmd_scores.append('--grid')
@@ -120,6 +126,7 @@ def main():
                 '--config-file=%s' % args.config_file, 
                 '--output-dir=%s' % args.output_dir,
                 '--algorithm-dir=%s' % args.lbph_dir,
+                '--protocol=%s' % protocol,
                 '--grid'
               ]
     job_cat = utils.submit(jm, cmd_cat, dependencies=job_scores, array=None)

@@ -38,6 +38,8 @@ def main():
       dest='plda_dir', default=None, help='The subdirectory where the PLDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('--plda-model-filename', metavar='STR', type=str,
       dest='plda_model_filename', default=None, help='The filename of the PLDABase model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+  parser.add_argument('-p', '--protocol', metavar='STR', type=str,
+      dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -46,18 +48,21 @@ def main():
 
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
+  # Update command line options if required
+  if args.protocol: protocol = args.protocol
+  else: protocol = config.protocol
   # Directories containing the features and the PLDA model
   if args.features_dir: features_dir_ = args.features_dir
   else: features_dir_ = config.features_dir
-  features_dir = os.path.join(args.output_dir, config.protocol, features_dir_)
+  features_dir = os.path.join(args.output_dir, protocol, features_dir_)
   if args.plda_dir: plda_dir_ = args.plda_dir
   else: plda_dir_ = config.plda_dir
   if args.plda_model_filename: plda_model_filename_ = args.plda_model_filename
   else: plda_model_filename_ = config.model_filename
-  plda_model_filename = os.path.join(args.output_dir, config.protocol, plda_dir_, plda_model_filename_)
+  plda_model_filename = os.path.join(args.output_dir, protocol, plda_dir_, plda_model_filename_)
 
   # (sorted) list of models
-  models_ids = sorted([model.id for model in config.db.models(protocol=config.protocol, groups=args.group)])
+  models_ids = sorted([model.id for model in config.db.models(protocol=protocol, groups=args.group)])
 
   # finally, if we are on a grid environment, just find what I have to process.
   probes_split_id = 0
@@ -67,7 +72,7 @@ def main():
     found = False
     pos = int(os.environ['SGE_TASK_ID']) - 1
     for model_id in models_ids:
-      n_probes_for_model = len(config.db.objects(groups=args.group, protocol=config.protocol, purposes='probe', model_ids=(model_id,)))
+      n_probes_for_model = len(config.db.objects(groups=args.group, protocol=protocol, purposes='probe', model_ids=(model_id,)))
       n_splits_for_model = int(math.ceil(n_probes_for_model / float(config.n_max_probes_per_job)))
       if pos < n_splits + n_splits_for_model:
         models_ids = [model_id]
@@ -78,7 +83,7 @@ def main():
     if found == False:
       raise RuntimeError("Grid request for job %d on a setup with %d jobs" % (pos, n_splits))
 
-  sc_nonorm_filename = os.path.join(args.output_dir, config.protocol, plda_dir_, config.scores_nonorm_dir, "scores-" + args.group)
+  sc_nonorm_filename = os.path.join(args.output_dir, protocol, plda_dir_, config.scores_nonorm_dir, "scores-" + args.group)
   if args.force:
     print("Removing old scores file '%s'." % sc_nonorm_filename)
     utils.erase_if_exists(sc_nonorm_filename)
@@ -93,7 +98,7 @@ def main():
       print("Computing scores for model '%s'." % model_id)
       if args.grid:
         # Saves model_scores to text file
-        sc_nonorm_filename = os.path.join(args.output_dir, config.protocol, plda_dir_, config.scores_nonorm_dir, 
+        sc_nonorm_filename = os.path.join(args.output_dir, protocol, plda_dir_, config.scores_nonorm_dir, 
           args.group, str(model_id) + "_" + str(probes_split_id).zfill(4) + ".txt")
         if args.force:
           print("Removing old scores file '%s'." % sc_nonorm_filename)
@@ -103,7 +108,7 @@ def main():
         print("Scores file '%s' already exists." % sc_nonorm_filename)
       else:
         # Gets the probe sample list
-        probe_filenames = sorted(config.db.objects(groups=args.group, protocol=config.protocol, purposes="probe", model_ids=(model_id,)), key=lambda f: f.path)
+        probe_filenames = sorted(config.db.objects(groups=args.group, protocol=protocol, purposes="probe", model_ids=(model_id,)), key=lambda f: f.path)
         
         # If we are on a grid environment, just keep the required split of samples
         if args.grid:
@@ -114,7 +119,7 @@ def main():
         (probe_tests, probe_client_ids) = utils.load_probes(probe_filenames, features_dir, config.features_ext)
 
         # Loads the client model
-        model_path = os.path.join(args.output_dir, config.protocol, plda_dir_, config.models_dir, str(model_id) + ".hdf5")
+        model_path = os.path.join(args.output_dir, protocol, plda_dir_, config.models_dir, str(model_id) + ".hdf5")
         machine = plda.load_model(model_path, pldabase)
 
         # Computes the scores of all the probes against the model and put them in A

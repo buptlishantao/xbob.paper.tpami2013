@@ -38,6 +38,8 @@ def main():
       dest='plda_dir', default=None, help='The subdirectory where the PLDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('--plda-model-filename', metavar='STR', type=str,
       dest='plda_model_filename', default=None, help='The filename of the PLDABase model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+  parser.add_argument('-p', '--protocol', metavar='STR', type=str,
+      dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -46,20 +48,23 @@ def main():
  
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
+  # Update command line options if required
+  if args.protocol: protocol = args.protocol
+  else: protocol = config.protocol
   # Directories containing the features and the PCA model
   if args.features_dir: features_dir_ = args.features_dir
   else: features_dir_ = config.features_dir
-  features_dir = os.path.join(args.output_dir, config.protocol, features_dir_)
+  features_dir = os.path.join(args.output_dir, protocol, features_dir_)
   if args.plda_dir: plda_dir_ = args.plda_dir
   else: plda_dir_ = config.plda_dir
   if args.plda_model_filename: plda_model_filename_ = args.plda_model_filename
   else: plda_model_filename_ = config.model_filename
-  plda_model_filename = os.path.join(args.output_dir, config.protocol, plda_dir_, plda_model_filename_)
+  plda_model_filename = os.path.join(args.output_dir, protocol, plda_dir_, plda_model_filename_)
   if utils.check_string(args.group): groups = [args.group]
   else: groups = args.group
 
   # (sorted) list of models
-  models_ids = sorted([model.id for model in config.db.models(protocol=config.protocol, groups=groups)])
+  models_ids = sorted([model.id for model in config.db.models(protocol=protocol, groups=groups)])
 
   # Loads the PLDABase 
   pldabase = plda.load_base_model(plda_model_filename)
@@ -68,7 +73,7 @@ def main():
   print("Enrolling PLDA models...")
   for model_id in models_ids:
     # Path to the model
-    model_path = os.path.join(args.output_dir, config.protocol, plda_dir_, config.models_dir, str(model_id) + ".hdf5")
+    model_path = os.path.join(args.output_dir, protocol, plda_dir_, config.models_dir, str(model_id) + ".hdf5")
 
     # Removes old file if required
     if args.force:
@@ -79,7 +84,7 @@ def main():
       print("PLDA model already exists.")
     else:
       # List of enrollment filenames
-      enroll_files = config.db.objects(protocol=config.protocol, model_ids=(model_id,), purposes='enrol')
+      enroll_files = config.db.objects(protocol=protocol, model_ids=(model_id,), purposes='enrol')
       # Loads enrollment files
       data = utils.load_data(enroll_files, features_dir, config.features_ext)
     

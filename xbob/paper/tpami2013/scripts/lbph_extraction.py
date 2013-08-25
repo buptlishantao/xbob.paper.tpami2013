@@ -40,6 +40,8 @@ def main():
       dest='output_dir', default='output', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='STR', type=str,
       dest='features_dir', default=None, help='The subdirectory for the output features. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+  parser.add_argument('-p', '--protocol', metavar='STR', type=str,
+      dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -48,14 +50,16 @@ def main():
 
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
-
+  # Update command line options if required
+  if args.protocol: protocol = args.protocol
+  else: protocol = config.protocol
   # Directories containing the features
   if args.features_dir: features_dir_ = args.features_dir
   else: features_dir_ = config.features_dir
-  features_dir = os.path.join(args.output_dir, config.protocol, features_dir_)
+  features_dir = os.path.join(args.output_dir, protocol, features_dir_)
 
   # Database python objects (sorted by keys in case of SGE grid usage)
-  inputs_list = sorted(config.db.objects(protocol=config.protocol), key=lambda f: f.path)
+  inputs_list = sorted(config.db.objects(protocol=protocol), key=lambda f: f.path)
 
   # finally, if we are on a grid environment, just find what I have to process.
   if args.grid:

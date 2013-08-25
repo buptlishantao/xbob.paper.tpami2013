@@ -43,6 +43,8 @@ def main():
       dest='pca_model_filename', default=None, help='The filename of the PCA model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('--eigenvalues', metavar='FILE', type=str,
       dest='eig_filename', default=None, help='The file for storing the eigenvalues.')
+  parser.add_argument('-p', '--protocol', metavar='STR', type=str,
+      dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -54,6 +56,8 @@ def main():
   # Update command line options if required
   if args.n_outputs: pca_n_outputs = args.n_outputs
   else: pca_n_outputs = config.pca_n_outputs
+  if args.protocol: protocol = args.protocol
+  else: protocol = config.protocol
   # Directories containing the features and the PCA model
   if args.features_dir: features_dir = args.features_dir
   else: features_dir = config.lbph_features_dir
@@ -78,6 +82,7 @@ def main():
                   '--features-dir=%s' % features_dir,
                   '--pca-dir=%s' % pca_dir,
                   '--pca-model-filename=%s' % pca_model_filename,
+                  '--protocol=%s' % protocol,
                  ]
   if args.eig_filename: cmd_pcatrain.append('--eigenvalues=%s' % args.eig_filename)
   if args.force: cmd_pcatrain.append('--force')
@@ -98,13 +103,14 @@ def main():
                     '--features-projected-dir=%s' % features_projected_dir,
                     '--algorithm-dir=%s' % pca_dir,
                     '--model-filename=%s' % pca_model_filename,
+                    '--protocol=%s' % protocol,
                    ]
   if args.force: cmd_pcaproject.append('--force')
   if args.grid: 
     cmd_pcaproject.append('--grid')
     import math
     # Database python objects (sorted by keys in case of SGE grid usage)
-    inputs_list = config.db.objects(protocol=config.protocol)
+    inputs_list = config.db.objects(protocol=protocol)
     # Number of array jobs
     n_array_jobs = int(math.ceil(len(inputs_list) / float(config.n_max_files_per_job)))  
     job_pcaproject = utils.submit(jm, cmd_pcaproject, dependencies=[job_pcatrain.id()], array=(1,n_array_jobs,1), queue='q1d', mem='2G', hostname='!cicatrix')

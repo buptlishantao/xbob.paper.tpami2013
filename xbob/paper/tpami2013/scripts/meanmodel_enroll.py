@@ -37,6 +37,8 @@ def main():
       dest='features_dir', default=None, help='The relative directory that contains the features to use.')
   parser.add_argument('--algorithm-dir', metavar='FILE', type=str,
       dest='algorithm_dir', default='default_algorithm', help='The relative directory of the algorithm that will contain the models and the scores.')
+  parser.add_argument('-p', '--protocol', metavar='STR', type=str,
+      dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -45,6 +47,9 @@ def main():
 
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
+  # Update command line options if required
+  if args.protocol: protocol = args.protocol
+  else: protocol = config.protocol
   # Directories containing the features and the PLDA model
   if args.features_dir: features_dir_ = args.features_dir
   else: features_dir_ = config.features_dir
@@ -52,13 +57,13 @@ def main():
   else: groups = args.group
 
   # (sorted) list of models
-  models_ids = sorted([model.id for model in config.db.models(protocol=config.protocol, groups=groups)])
+  models_ids = sorted([model.id for model in config.db.models(protocol=protocol, groups=groups)])
 
   # Enrols all the client models
   print("Enrolling generic mean models...")
   for model_id in models_ids:
     # Path to the model
-    model_path = os.path.join(args.output_dir, config.protocol, args.algorithm_dir, config.models_dir, str(model_id) + ".hdf5")
+    model_path = os.path.join(args.output_dir, protocol, args.algorithm_dir, config.models_dir, str(model_id) + ".hdf5")
 
     # Remove old file if required
     if args.force:
@@ -69,9 +74,9 @@ def main():
       print("Generic mean model already exists")
     else:
       # List of enrollment filenames
-      enroll_files = config.db.objects(protocol=config.protocol, model_ids=(model_id,), purposes='enrol')
+      enroll_files = config.db.objects(protocol=protocol, model_ids=(model_id,), purposes='enrol')
       # Loads enrollment files
-      features_dir = os.path.join(args.output_dir, config.protocol, args.features_dir)
+      features_dir = os.path.join(args.output_dir, protocol, args.features_dir)
       data = utils.load_data(enroll_files, features_dir, config.features_ext)
     
       # Enrols

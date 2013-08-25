@@ -41,6 +41,8 @@ def main():
       dest='output_dir', default='output', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='STR', type=str,
       dest='features_dir', default=None, help='The subdirectory for the output features. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+  parser.add_argument('-p', '--protocol', metavar='STR', type=str,
+      dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -49,6 +51,9 @@ def main():
 
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
+  # Update command line options if required
+  if args.protocol: protocol = args.protocol
+  else: protocol = config.protocol
   # Directories containing the features
   if args.features_dir: features_dir = args.features_dir
   else: features_dir = config.lbph_features_dir
@@ -68,13 +73,14 @@ def main():
                       '--annotation-ext=%s' % args.pos_input_ext,
                       '--output-dir=%s' % args.output_dir,
                       '--features-dir=%s' % features_dir,
+                      '--protocol=%s' % protocol,
                      ]
   if args.force: cmd_lbph_extract.append('--force')
   if args.grid: 
     cmd_lbph_extract.append('--grid')
     import math
     # Database python objects (sorted by keys in case of SGE grid usage)
-    inputs_list = config.db.objects(protocol=config.protocol)
+    inputs_list = config.db.objects(protocol=protocol)
     # Number of array jobs
     n_array_jobs = int(math.ceil(len(inputs_list) / float(config.n_max_files_per_job)))  
     job_lbph_extract = utils.submit(jm, cmd_lbph_extract, dependencies=None, array=(1,n_array_jobs,1), queue='q1d', mem='2G', hostname='!cicatrix')

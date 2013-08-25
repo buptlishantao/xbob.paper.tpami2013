@@ -40,6 +40,8 @@ def main():
       dest='algorithm_dir', default='pca', help='The subdirectory where the algorithm data are stored.')
   parser.add_argument('--model-filename', metavar='STR', type=str,
       dest='model_filename', default=None, help='The filename of the Linear model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+  parser.add_argument('-p', '--protocol', metavar='STR', type=str,
+      dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -48,19 +50,22 @@ def main():
 
   # Loads the configuration 
   config = imp.load_source('config', args.config_file)
+  # Update command line options if required
+  if args.protocol: protocol = args.protocol
+  else: protocol = config.protocol
   # Directories containing the features, the PCA model and the projected features
   if args.features_dir: features_dir_ = args.features_dir
   else: features_dir_ = config.features_dir
-  features_dir = os.path.join(args.output_dir, config.protocol, features_dir_)
+  features_dir = os.path.join(args.output_dir, protocol, features_dir_)
   if args.features_projected_dir: features_projected_dir_ = args.features_projected_dir
   else: features_projected_dir_ = config.features_projected_dir
-  features_projected_dir = os.path.join(args.output_dir, config.protocol, args.algorithm_dir, features_projected_dir_)
+  features_projected_dir = os.path.join(args.output_dir, protocol, args.algorithm_dir, features_projected_dir_)
   if args.model_filename: model_filename = args.model_filename
   else: model_filename = config.model_filename
-  model_filename = os.path.join(args.output_dir, config.protocol, args.algorithm_dir, model_filename) 
+  model_filename = os.path.join(args.output_dir, protocol, args.algorithm_dir, model_filename) 
 
   # Database python objects (sorted by keys in case of SGE grid usage)
-  inputs_list = sorted(config.db.objects(protocol=config.protocol), key=lambda f: f.path) 
+  inputs_list = sorted(config.db.objects(protocol=protocol), key=lambda f: f.path) 
 
   # finally, if we are on a grid environment, just find what I have to process.
   if args.grid:

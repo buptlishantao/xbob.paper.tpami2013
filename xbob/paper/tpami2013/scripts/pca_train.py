@@ -40,6 +40,8 @@ def main():
       dest='pca_model_filename', default=None, help='The filename of the PCA model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('--eigenvalues', metavar='FILE', type=str,
       dest='eig_filename', default=None, help='The file for storing the eigenvalues.')
+  parser.add_argument('-p', '--protocol', metavar='STR', type=str,
+      dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -51,15 +53,17 @@ def main():
   # Update command line options if required
   if args.n_outputs: pca_n_outputs = args.n_outputs
   else: pca_n_outputs = config.pca_n_outputs
+  if args.protocol: protocol = args.protocol
+  else: protocol = config.protocol
   # Directories containing the features and the PCA model
   if args.features_dir: features_dir_ = args.features_dir
   else: features_dir_ = config.features_dir
-  features_dir = os.path.join(args.output_dir, config.protocol, features_dir_)
+  features_dir = os.path.join(args.output_dir, protocol, features_dir_)
   if args.pca_dir: pca_dir_ = args.pca_dir
   else: pca_dir_ = config.pca_dir
   if args.pca_model_filename: pca_model_filename_ = args.pca_model_filename
   else: pca_model_filename_ = config.model_filename
-  pca_model_filename = os.path.join(args.output_dir, config.protocol, pca_dir_, pca_model_filename_)
+  pca_model_filename = os.path.join(args.output_dir, protocol, pca_dir_, pca_model_filename_)
 
   # Remove old file if required
   if args.force:
@@ -72,7 +76,7 @@ def main():
     print("Training PCA base model.")
 
     # Get list of list of filenames to load
-    training_filenames = sorted(config.db.objects(protocol=config.protocol, groups='world'), key=lambda f: f.path)
+    training_filenames = sorted(config.db.objects(protocol=protocol, groups='world'), key=lambda f: f.path)
     print("Number of training files: " + str(len(training_filenames)))
     
     # Loads training data

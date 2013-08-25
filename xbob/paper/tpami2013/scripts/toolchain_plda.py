@@ -50,6 +50,8 @@ def main():
       dest='plda_model_filename', default=None, help='The filename of the PLDABase model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-g', '--group', metavar='STR', type=str, nargs='+',
       dest='group', default=['dev','eval'], help='Database group (\'dev\' or \'eval\') for which to enroll models and compute scores.')
+  parser.add_argument('-p', '--protocol', metavar='STR', type=str,
+      dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -63,6 +65,8 @@ def main():
   else: plda_nf = args.nf
   if args.ng == 0: plda_ng = config.plda_ng
   else: plda_ng = args.ng
+  if args.protocol: protocol = args.protocol
+  else: protocol = config.protocol
   # Directories containing the features and the PLDA model
   if args.features_dir: features_dir = args.features_dir
   else: features_dir = config.features_dir
@@ -89,6 +93,7 @@ def main():
                   '--features-dir=%s' % features_dir,
                   '--plda-dir=%s' % plda_dir,
                   '--plda-model-filename=%s' % plda_model_filename,
+                  '--protocol=%s' % protocol,
                  ]
   if args.force: cmd_pldabase.append('--force')
   if args.grid: 
@@ -102,7 +107,7 @@ def main():
   # Generates the models 
   job_enroll = []
   for group in groups:
-    n_array_jobs = len(config.db.models(protocol=config.protocol, groups=group))
+    n_array_jobs = len(config.db.models(protocol=protocol, groups=group))
     cmd_enroll = [
                   './bin/plda_enroll.py',
                   '--config-file=%s' % args.config_file, 
@@ -111,6 +116,7 @@ def main():
                   '--features-dir=%s' % features_dir,
                   '--plda-dir=%s' % plda_dir,
                   '--plda-model-filename=%s' % plda_model_filename,
+                  '--protocol=%s' % protocol,
                  ]
     if args.force: cmd_enroll.append('--force')
     if args.grid: 
@@ -126,9 +132,9 @@ def main():
   job_scores = []
   for group in groups:
     n_array_jobs = 0
-    model_ids = sorted([model.id for model in config.db.models(protocol=config.protocol, groups=group)])
+    model_ids = sorted([model.id for model in config.db.models(protocol=protocol, groups=group)])
     for model_id in model_ids:
-      n_probes_for_model = len(config.db.objects(groups=group, protocol=config.protocol, purposes='probe', model_ids=(model_id,)))
+      n_probes_for_model = len(config.db.objects(groups=group, protocol=protocol, purposes='probe', model_ids=(model_id,)))
       n_splits_for_model = int(math.ceil(n_probes_for_model / float(config.n_max_probes_per_job)))
       n_array_jobs += n_splits_for_model
     cmd_scores = [
@@ -139,6 +145,7 @@ def main():
                   '--features-dir=%s' % features_dir,
                   '--plda-dir=%s' % plda_dir,
                   '--plda-model-filename=%s' % plda_model_filename,
+                  '--protocol=%s' % protocol,
                  ]
     if args.grid: 
       cmd_scores.append('--grid')
@@ -157,6 +164,7 @@ def main():
                 '--config-file=%s' % args.config_file, 
                 '--output-dir=%s' % args.output_dir,
                 '--algorithm-dir=%s' % plda_dir,
+                '--protocol=%s' % protocol,
                 '--grid'
               ]
     job_cat = utils.submit(jm, cmd_cat, dependencies=job_scores, array=None)

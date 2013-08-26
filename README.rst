@@ -186,7 +186,7 @@ Reproducing experiments
 It is currently possible to reproduce the experiments on both Labeled
 Faces in the Wild and Multi-PIE using the PLDA algorithm. In 
 particular, the value of the accuracy reported in Table 2, the Figure 2 
-amd tje HTER reported on Table 3 can be easily reproduced, by 
+and the HTER reported on Table 3 can be easily reproduced, by 
 following the steps described below.
 
 Be aware that all the scripts provide several optional arguments that
@@ -346,8 +346,8 @@ evaluation script from the bob library as follows::
 
   $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/plda/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/plda/scores/scores-eval -x
 
-The HTER on the evaluation set, when using the the EER on the development
-set as the criterium for the threshold, corresponds to the PLDA value reported
+The HTER on the evaluation set, when using the EER on the development
+set as the criterion for the threshold, corresponds to the PLDA value reported
 on Table 3 of the article mentioned above.
 
 If you want to reproduce the Figure 2 of the article, you can run the 
@@ -377,7 +377,7 @@ similarly be obtained as follows::
 
 The previous commands will run the PLDA toolchain several times for a varying
 number of training samples. Please note, that this will require a lot of time
-to complete (one to two days on a recent workstation such as one with an
+to complete (a bit less than two days on a recent workstation such as one with an
 Intel Core i7 CPU).
 
 .. note::
@@ -403,7 +403,7 @@ Baseline 1: PCA on the LBP histograms
 
 The LBP histogram features were used in combination with the PCA 
 classification technique (commonly called Eigenfaces in the face 
-recognition litterature).
+recognition literature).
 
 This involves three different steps:
   1. PCA subspace training
@@ -454,7 +454,7 @@ Baseline 2: LDA on the PCA projected LBP histograms
 The PCA projected LBP histogram features considered for the PLDA system
 were also used in combination with the Fisher's LDA classification 
 technique (commonly called Fisherfaces in the face recognition 
-litterature).
+literature).
 
 This involves three different steps:
   1. LDA subspace training
@@ -543,12 +543,12 @@ If you are facing technical issues to be able to run the scripts
 of this package, please send a message on the `Bob's mailing list
 <https://groups.google.com/forum/#!forum/bob-devel>`_.
 
-If you find a problem wrt. to this satelitte package, you can file
+If you find a problem wrt. this satelitte package, you can file
 a ticket on the `github issue tracker
 <http://www.github.com/bioidiap/xbob.paper.tpami2013/issues>`_  of this
 satellite package.
 
-If you find a problem wrt. to the PLDA implementation, you can file
+If you find a problem wrt. the PLDA implementation, you can file
 a ticket on `Bob's issue tracker <http://www.github.com/idiap/bob/issues>`_ .
 
 Please follow `these guidelines 

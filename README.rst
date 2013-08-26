@@ -183,17 +183,19 @@ To run this simple example, you just need to execute the following command::
 Reproducing experiments
 -----------------------
 
-It is currently possible to reproduce the experiments on Multi-PIE using
-the PLDA algorithm. In particular, the Figure 2 of the article can be 
-easily reproduced, by following the steps described below, as well as
-the HTER reported on Table 3.
-
-The experiments that make use of the LFW database may be integrated
-later on in this package.
+It is currently possible to reproduce the experiments on both Labeled
+Faces in the Wild and Multi-PIE using the PLDA algorithm. In 
+particular, the value of the accuracy reported in Table 2, the Figure 2 
+amd tje HTER reported on Table 3 can be easily reproduced, by 
+following the steps described below.
 
 Be aware that all the scripts provide several optional arguments that
 are very useful if you wish at using your own features or your own
 parameters.
+
+Keep in mind that the results published in the paper were obtained with
+a pre-release of Bob (older than 1.0.0). You might hence observe slight 
+differences when running the scripts with Bob 1.2.0.
 
 
 Note for Grid Users
@@ -250,7 +252,8 @@ Summarizing the results as in Table 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Once the previous experiments have successfully completed, you can use 
-the following script to plot Table 2::
+the following script to plot Table 2, that will estimate the average
+accuracy on the 10 folds of LFW view2::
 
   $ ./bin/plot_table2.py --output-dir /PATH/TO/LFW/OUTPUT_DIR/
 

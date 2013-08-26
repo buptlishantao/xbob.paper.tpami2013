@@ -125,9 +125,9 @@ Download the latest version of this package from `PyPI
 <http://pypi.python.org/pypi/xbob.paper.tpami2013>`_ and unpack it in your
 working area::
 
-  $ wget http://pypi.python.org/packages/source/x/xbob.paper.tpami2013/xbob.paper.tpami2013-0.3.0a0.zip
-  $ unzip xbob.paper.tpami2013-0.3.0a0.zip
-  $ cd xbob.paper.tpami2013-0.3.0a0
+  $ wget http://pypi.python.org/packages/source/x/xbob.paper.tpami2013/xbob.paper.tpami2013-0.3.0a1.zip
+  $ unzip xbob.paper.tpami2013-0.3.0a1.zip
+  $ cd xbob.paper.tpami2013-0.3.0a1
 
 The installation of the toolkit itself uses `buildout 
 <http://www.buildout.org/>`_. You don't need to understand its inner workings

@@ -22,7 +22,7 @@ from setuptools import setup, find_packages
 setup(
 
     name='xbob.paper.tpami2013',
-    version='0.2.0a4',
+    version='0.3.0a0',
     description='Example on how to use the scalable implementation of PLDA and how to reproduce experiments of the article',
     url='http://pypi.python.org/pypi/xbob.paper.tpami2013',
     license='GPLv3',
@@ -38,6 +38,7 @@ setup(
       'setuptools',
       'bob >= 1.2.0',
       'xbob.db.multipie',
+      'xbob.db.verification.filelist',
       'six',  # py2/3 compatibility library
       'gridtk',
     ],
@@ -64,6 +65,10 @@ setup(
         'toolchain_lda.py = xbob.paper.tpami2013.scripts.toolchain_lda:main',
         'toolchain_pca.py = xbob.paper.tpami2013.scripts.toolchain_pca:main',
         'plot_table3.py = xbob.paper.tpami2013.scripts.plot_table3:main',
+        'lfw_features.py = xbob.paper.tpami2013.scripts.lfw_features:main',
+        'toolchain_pcaplda.py = xbob.paper.tpami2013.scripts.toolchain_pcaplda:main',
+        'experiment_pcaplda_lfw.py = xbob.paper.tpami2013.scripts.experiment_pcaplda_lfw:main',
+        'plot_table2.py = xbob.paper.tpami2013.scripts.plot_table2:main',
         ],
       },
 

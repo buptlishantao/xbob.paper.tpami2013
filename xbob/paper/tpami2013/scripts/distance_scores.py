@@ -23,7 +23,7 @@ import argparse
 from .. import utils
 
 def main():
-
+  """Compute scores using a distance approach"""
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,
@@ -31,11 +31,11 @@ def main():
   parser.add_argument('-g', '--group', metavar='STR', type=str,
       dest='group', default='dev', help='Database group (\'dev\' or \'eval\') for which to retrieve models (defaults to "%(default)s").')
   parser.add_argument('--output-dir', metavar='FILE', type=str,
-      dest='output_dir', default='ouput', help='The base output directory for everything (models, scores, etc.).')
+      dest='output_dir', default='output', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='FILE', type=str,
-      dest='features_dir', default=None, help='The relative directory that contains the features to use.')
+      dest='features_dir', default=None, help='The directory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file, that is prepended by the given output directory and the protocol.')
   parser.add_argument('--algorithm-dir', metavar='FILE', type=str,
-      dest='algorithm_dir', default='default_algorithm', help='The relative directory of the algorithm that will contain the models and the scores.')
+      dest='algorithm_dir', default='default_algorithm', help='The relative directory of the algorithm that will contain the models and the scores. It is appended to the given output directory and the protocol.')
   parser.add_argument('--distance', metavar='STR', type=str,
       dest='distance', default='euclidean', help='The distance to use, when computing scores.')
   parser.add_argument('-p', '--protocol', metavar='STR', type=str,
@@ -51,14 +51,14 @@ def main():
   # Update command line options if required
   if args.protocol: protocol = args.protocol
   else: protocol = config.protocol
-  if not args.features_dir: features_dir_ = config.features_dir
-  else: features_dir_ = args.features_dir
-  features_dir = os.path.join(args.output_dir, protocol, features_dir_)
+  # Directories containing the features and the PCA model
+  if args.features_dir: features_dir = args.features_dir
+  else: features_dir = os.path.join(args.output_dir, protocol, config.features_dir)
   if utils.check_string(args.group): groups = [args.group]
   else: groups = args.group
 
   # (sorted) list of models
-  models_ids = sorted([model.id for model in config.db.models(protocol=protocol, groups=args.group)])
+  models_ids = sorted(config.db.model_ids(protocol=protocol, groups=args.group))
 
   # finally, if we are on a grid environment, just find what I have to process.
   probes_split_id = 0

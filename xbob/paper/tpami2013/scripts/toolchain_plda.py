@@ -17,9 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
-"""Submits all feature creation jobs to the Idiap grid"""
-
+import os
 import math
 import imp
 import subprocess
@@ -27,7 +25,7 @@ import argparse
 from .. import utils
 
 def main():
-  """The main entry point, control here the jobs options and other details"""
+  """PLDA toolchain"""
 
   # Parses options
   parser = argparse.ArgumentParser(description=__doc__,
@@ -43,11 +41,11 @@ def main():
   parser.add_argument('--output-dir', metavar='STR', type=str,
       dest='output_dir', default='output', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='STR', type=str,
-      dest='features_dir', default=None, help='The subdirectory (wrt. to output_dir) where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='features_dir', default=None, help='The directory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value \'lbph_features_dir\' in the configuration file, that is prepended by the given output directory and the protocol.')
   parser.add_argument('--plda-dir', metavar='STR', type=str,
-      dest='plda_dir', default=None, help='The subdirectory where the PLDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='plda_dir', default=None, help='The subdirectory where the PLDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file. It is appended to the given output directory and the protocol.')
   parser.add_argument('--plda-model-filename', metavar='STR', type=str,
-      dest='plda_model_filename', default=None, help='The filename of the PLDABase model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='plda_model_filename', default=None, help='The (relative) filename of the PLDABase model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file. It is then appended to the given output directory, the protocol and the plda directory.')
   parser.add_argument('-g', '--group', metavar='STR', type=str, nargs='+',
       dest='group', default=['dev','eval'], help='Database group (\'dev\' or \'eval\') for which to enroll models and compute scores.')
   parser.add_argument('-p', '--protocol', metavar='STR', type=str,
@@ -69,7 +67,7 @@ def main():
   else: protocol = config.protocol
   # Directories containing the features and the PLDA model
   if args.features_dir: features_dir = args.features_dir
-  else: features_dir = config.features_dir
+  else: features_dir = os.path.join(args.output_dir, protocol, config.features_dir)
   if args.plda_dir: plda_dir = args.plda_dir
   else: plda_dir = config.plda_dir
   if args.plda_model_filename: plda_model_filename = args.plda_model_filename
@@ -107,7 +105,7 @@ def main():
   # Generates the models 
   job_enroll = []
   for group in groups:
-    n_array_jobs = len(config.db.models(protocol=protocol, groups=group))
+    n_array_jobs = len(config.db.model_ids(protocol=protocol, groups=group))
     cmd_enroll = [
                   './bin/plda_enroll.py',
                   '--config-file=%s' % args.config_file, 
@@ -132,7 +130,7 @@ def main():
   job_scores = []
   for group in groups:
     n_array_jobs = 0
-    model_ids = sorted([model.id for model in config.db.models(protocol=protocol, groups=group)])
+    model_ids = sorted(config.db.model_ids(protocol=protocol, groups=group))
     for model_id in model_ids:
       n_probes_for_model = len(config.db.objects(groups=group, protocol=protocol, purposes='probe', model_ids=(model_id,)))
       n_splits_for_model = int(math.ceil(n_probes_for_model / float(config.n_max_probes_per_job)))

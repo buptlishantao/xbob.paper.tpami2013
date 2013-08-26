@@ -212,6 +212,57 @@ infrastructure, but will likely require some configuration changes in the
 gridtk utility.
 
 
+Labeled Faces in the Wild dataset
+=================================
+
+The experiments of this section are performed on the LFW (Labeled Faces
+in the Wild) protocol. The features are publicly available and will be
+automatically downloaded from `this webpage 
+<http://lear.inrialpes.fr/people/guillaumin/data.php>`_ if you follow the
+instruction below. They were extracted on the LFW images aligned with the
+funneling algorithm.
+
+
+Getting the features and converting them into HDF5 format
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following command will download a tarball with the features, extract
+it and convert them into the suitable HDF5 format for Bob::
+
+  $ ./bin/lfw_features.py --output-dir /PATH/TO/LFW/DATABASE/
+
+
+Running the PCA+PLDA toolchain on LFW
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following command will run the PCA+PLDA toolchain on the specified 
+protocol::
+
+  $ ./bin/toolchain_pcaplda.py --features-dir /PATH/TO/LFW/DATABASE/lfw_funneled --protocol view1 --output-dir /PATH/TO/LFW/OUTPUT_DIR/
+
+If you want to run the experiments on the 10 protocols of view2, you
+can use the following command::
+
+  $ ./bin/experiment_pcaplda_lfw.py -features-dir /PATH/TO/LFW/DATABASE/lfw_funneled --output-dir /PATH/TO/LFW/OUTPUT_DIR/
+
+
+Summarizing the results as in Table 2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once the previous experiments have successfully completed, you can use 
+the following script to plot Table 2::
+
+  $ ./bin/plot_table2.py --output-dir /PATH/TO/LFW/OUTPUT_DIR/
+
+.. note::
+
+  Compared to the results published in the article, there are slight
+  differences caused by both the order of the training files when applying
+  PCA, and the lists used to split the LFW `training` set into a `training`
+  set and a `validation` set (selection of the verification threshold to
+  apply on the test set).
+
+
 Multi-PIE dataset
 =================
 
@@ -259,8 +310,8 @@ dimensional subspace using Principal Component Analysis (PCA)::
   Equivalently, this can also be achieved by running the following 
   individual commands::
 
-    $ ./bin/pca_train.py --features-dir features/lbph --pca-dir features --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/linear_project.py --features-dir features/lbph --algorithm-dir features --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/pca_train.py --features-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/U/features/lbph --pca-dir features --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/linear_project.py --features-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/U/features/lbph --algorithm-dir features --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
 
 Proposed system: PLDA modeling and scoring
@@ -317,7 +368,7 @@ similarly be obtained as follows::
   if your CPU has several cores::
 
     $ for k in 2 4 6 8 10 14 19 29 38 48 57 67 76; do \
-        ./bin/plda.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/ --world-nshots $k --plda-dir plda_subworld_${k}; \
+        ./bin/toolchain_plda.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/ --world-nshots $k --plda-dir plda_subworld_${k}; \
       done
     $ ./bin/plot_figure2.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
@@ -365,16 +416,16 @@ The following command will perform all these steps::
   Equivalently, this can also be achieved by running the following 
   individual commands::
 
-    $ ./bin/pca_train.py --features-dir features/lbph --n-outputs 2048 --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/linear_project.py --features-dir features/lbph --algorithm-dir pca --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/meanmodel_enroll.py --features-dir pca/lbph_projected --algorithm-dir pca --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/distance_scores.py --features-dir pca/lbph_projected --algorithm-dir pca --distance euclidean --group dev --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/distance_scores.py --features-dir pca/lbph_projected --algorithm-dir pca --distance euclidean --group eval --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/pca_train.py --features-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/U/features/lbph --n-outputs 2048 --pca-dir pca_euclidean --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/linear_project.py --features-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/U/features/lbph --algorithm-dir pca_euclidean --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/meanmodel_enroll.py --features-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/U/pca_euclidean/lbph_projected --algorithm-dir pca_euclidean --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/distance_scores.py --features-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/U/pca_euclidean/lbph_projected --algorithm-dir pca_euclidean --distance euclidean --group dev --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/distance_scores.py --features-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/U/pca_euclidean/lbph_projected --algorithm-dir pca_euclidean --distance euclidean --group eval --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
 Then, the HTER on the evaluation set can be obtained using the 
 evaluation script from the bob library as follows::
 
-  $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda/scores/scores-eval -x
+  $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/pca_euclidean/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/pca_euclidean/scores/scores-eval -x
 
 This value corresponds to the one of the PCA baseline reported on 
 Table 3 of the article (Once more, be aware of differences due 
@@ -416,16 +467,16 @@ The following command will perform all these steps::
   Equivalently, this can also be achieved by running the following 
   individual commands::
 
-    $ ./bin/lda_train.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/linear_project.py --algorithm-dir lda --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/meanmodel_enroll.py --features-dir lda/lbph_projected --algorithm-dir lda --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/distance_scores.py --features-dir lda/lbph_projected --algorithm-dir lda --distance euclidean --group dev --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/distance_scores.py --features-dir lda/lbph_projected --algorithm-dir lda --distance euclidean --group eval --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/lda_train.py --features-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/U/features/lbph_projected --lda-dir lda_euclidean --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/linear_project.py --features-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/U/features/lbph_projected --algorithm-dir lda_euclidean --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/meanmodel_enroll.py --features-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda_euclidean/lbph_projected --algorithm-dir lda_euclidean --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/distance_scores.py --features-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda_euclidean/lbph_projected --algorithm-dir lda_euclidean --distance euclidean --group dev --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/distance_scores.py --features-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda_euclidean/lbph_projected --algorithm-dir lda_euclidean --distance euclidean --group eval --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
 Then, the HTER on the evaluation set can be obtained using the 
 evaluation script from the bob library as follows::
 
-  $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda/scores/scores-eval -x
+  $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda_euclidean/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/lda_euclidean/scores/scores-eval -x
 
 This value corresponds to the one of the LDA baseline reported on 
 Table 3 of the PLDA article (Once more, be aware of slight 
@@ -454,9 +505,9 @@ The following command will perform all these steps::
   Equivalently, this can also be achieved by running the following 
   individual commands::
 
-    $ ./bin/meanmodel_enroll.py --features-dir features/lbph --algorithm-dir lbph_chisquare --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/distance_scores.py --features-dir features/lbph --algorithm-dir lbph_chisquare --distance chi_square --group dev --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
-    $ ./bin/distance_scores.py --features-dir features/lbph --algorithm-dir lbph_chisquare --distance chi_square --group eval --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/meanmodel_enroll.py --features-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/U/features/lbph --algorithm-dir lbph_chisquare --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/distance_scores.py --features-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/U/features/lbph --algorithm-dir lbph_chisquare --distance chi_square --group dev --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
+    $ ./bin/distance_scores.py --features-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/U/features/lbph --algorithm-dir lbph_chisquare --distance chi_square --group eval --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
 Then, the HTER on the evaluation set can be obtained using the 
 evaluation script from the bob library as follows::

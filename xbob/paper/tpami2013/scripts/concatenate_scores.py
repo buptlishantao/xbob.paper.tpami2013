@@ -23,7 +23,7 @@ import argparse
 from .. import utils
 
 def main():
-
+  """Concatenate scores after splitting the computation process using an SGE grid"""
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,
@@ -51,7 +51,7 @@ def main():
   N_MAX_SPLITS = 9999 # zfill is done with 4 zeros
   for group in args.group:
     # (sorted) list of models
-    models_ids = sorted([model.id for model in config.db.models(protocol=protocol, groups=group)])
+    models_ids = sorted(config.db.model_ids(protocol=protocol, groups=group))
 
     sc_nonorm_filename = os.path.join(args.output_dir, protocol, args.algorithm_dir, config.scores_nonorm_dir, "scores-" + group)
     if args.force:

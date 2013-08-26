@@ -24,7 +24,7 @@ import bob
 from .. import utils
 
 def main():
-
+  """Enroll a model as the mean of the enrollment samples"""
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,
@@ -34,9 +34,9 @@ def main():
   parser.add_argument('--output-dir', metavar='FILE', type=str,
       dest='output_dir', default='output', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='FILE', type=str,
-      dest='features_dir', default=None, help='The relative directory that contains the features to use.')
+      dest='features_dir', default=None, help='The directory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file, that is prepended by the given output directory and the protocol.')
   parser.add_argument('--algorithm-dir', metavar='FILE', type=str,
-      dest='algorithm_dir', default='default_algorithm', help='The relative directory of the algorithm that will contain the models and the scores.')
+      dest='algorithm_dir', default='default_algorithm', help='The relative directory of the algorithm that will contain the models and the scores. It is appended to the given output directory and the protocol.')
   parser.add_argument('-p', '--protocol', metavar='STR', type=str,
       dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
@@ -51,13 +51,13 @@ def main():
   if args.protocol: protocol = args.protocol
   else: protocol = config.protocol
   # Directories containing the features and the PLDA model
-  if args.features_dir: features_dir_ = args.features_dir
-  else: features_dir_ = config.features_dir
+  if args.features_dir: features_dir = args.features_dir
+  else: features_dir = os.path.join(args.output_dir, protocol, config.features_dir)
   if utils.check_string(args.group): groups = [args.group]
   else: groups = args.group
 
   # (sorted) list of models
-  models_ids = sorted([model.id for model in config.db.models(protocol=protocol, groups=groups)])
+  models_ids = sorted(config.db.model_ids(protocol=protocol, groups=groups))
 
   # Enrols all the client models
   print("Enrolling generic mean models...")
@@ -76,7 +76,6 @@ def main():
       # List of enrollment filenames
       enroll_files = config.db.objects(protocol=protocol, model_ids=(model_id,), purposes='enrol')
       # Loads enrollment files
-      features_dir = os.path.join(args.output_dir, protocol, args.features_dir)
       data = utils.load_data(enroll_files, features_dir, config.features_ext)
     
       # Enrols

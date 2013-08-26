@@ -24,7 +24,7 @@ import subprocess
 from .. import utils
 
 def main():
-
+  """Call the LBP Histograms feature extraction"""
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,
@@ -40,13 +40,13 @@ def main():
   parser.add_argument('--output-dir', metavar='STR', type=str,
       dest='output_dir', default='output', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='STR', type=str,
-      dest='features_dir', default=None, help='The subdirectory for the output features. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='features_dir', default=None, help='The directory for the output features. It will overwrite the value in the configuration file if any. Default is the value in the configuration file, that is prepended by the given output directory and the protocol.')
   parser.add_argument('-p', '--protocol', metavar='STR', type=str,
       dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
-      default=False, help='It is currently not possible to paralellize this script, and hence useless for the time being.')
+      default=False, help='If set, assumes it will split the jobs on the SGE grid.')
   args = parser.parse_args()
 
   # Loads the configuration 
@@ -56,7 +56,7 @@ def main():
   else: protocol = config.protocol
   # Directories containing the features
   if args.features_dir: features_dir = args.features_dir
-  else: features_dir = config.lbph_features_dir
+  else: features_dir = os.path.join(args.output_dir, protocol, config.lbph_features_dir)
 
   # Let's create the job manager
   if args.grid:

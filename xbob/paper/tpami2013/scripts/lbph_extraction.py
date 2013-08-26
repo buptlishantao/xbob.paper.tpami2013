@@ -23,7 +23,7 @@ import imp
 from .. import features, utils
 
 def main():
-
+  """Run the LBP Histograms feature extraction"""
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,
@@ -54,9 +54,8 @@ def main():
   if args.protocol: protocol = args.protocol
   else: protocol = config.protocol
   # Directories containing the features
-  if args.features_dir: features_dir_ = args.features_dir
-  else: features_dir_ = config.features_dir
-  features_dir = os.path.join(args.output_dir, protocol, features_dir_)
+  if args.features_dir: features_dir = args.features_dir
+  else: features_dir = os.path.join(args.output_dir, protocol, config.features_dir)
 
   # Database python objects (sorted by keys in case of SGE grid usage)
   inputs_list = sorted(config.db.objects(protocol=protocol), key=lambda f: f.path)

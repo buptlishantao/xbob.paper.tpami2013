@@ -17,9 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
-"""Apply the LBPH chi square toolchain to a set of features"""
-
+import os
 import math
 import imp
 import subprocess
@@ -27,8 +25,7 @@ import argparse
 from .. import utils
 
 def main():
-  """The main entry point, control here the jobs options and other details"""
-
+  """LBPH chi square toolchain"""
   # Parses options
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -39,9 +36,9 @@ def main():
   parser.add_argument('--output-dir', metavar='STR', type=str,
       dest='output_dir', default='output', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='STR', type=str,
-      dest='features_dir', default=None, help='The subdirectory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='features_dir', default=None, help='The directory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value \'lbph_features_dir\' in the configuration file, that is prepended by the given output directory and the protocol.')
   parser.add_argument('--lbph-dir', metavar='FILE', type=str,
-      dest='lbph_dir', default='lbph_chisquare', help='The relative directory of the LBPH that will contain the models and the scores.')
+      dest='lbph_dir', default='lbph_chisquare', help='The relative directory of the LBPH that will contain the models and the scores. It is appended to the given output directory and the protocol.')
   parser.add_argument('--distance', metavar='STR', type=str,
       dest='distance', default='chi_square', help='The distance to use, when computing scores.')
   parser.add_argument('-p', '--protocol', metavar='STR', type=str,
@@ -57,8 +54,8 @@ def main():
   # Update command line options if required
   if args.protocol: protocol = args.protocol
   else: protocol = config.protocol
-  if not args.features_dir: features_dir = config.lbph_features_dir
-  else: features_dir = args.features_dir
+  if args.features_dir: features_dir = args.features_dir
+  else: features_dir = os.path.join(args.output_dir, protocol, config.lbph_features_dir)
   if utils.check_string(args.group): groups = [args.group]
   else: groups = args.group
 
@@ -70,7 +67,7 @@ def main():
   # Generates the models 
   job_enroll = []
   for group in groups:
-    n_array_jobs = len(config.db.models(protocol=protocol, groups=groups))
+    n_array_jobs = len(config.db.model_ids(protocol=protocol, groups=groups))
     cmd_enroll = [
                   './bin/meanmodel_enroll.py',
                   '--config-file=%s' % args.config_file, 
@@ -94,7 +91,7 @@ def main():
   job_scores = []
   for group in groups:
     n_array_jobs = 0
-    model_ids = sorted([model.id for model in config.db.models(protocol=protocol, groups=group)])
+    model_ids = sorted(config.db.model_ids(protocol=protocol, groups=group))
     for model_id in model_ids:
       n_probes_for_model = len(config.db.objects(groups=group, protocol=protocol, purposes='probe', model_ids=(model_id,)))
       n_splits_for_model = int(math.ceil(n_probes_for_model / float(config.n_max_probes_per_job)))

@@ -23,7 +23,7 @@ import argparse
 from .. import plda, utils
 
 def main():
-
+  """Train a PLDA model"""
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,
@@ -37,11 +37,11 @@ def main():
   parser.add_argument('--output-dir', metavar='STR', type=str,
       dest='output_dir', default='output', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='STR', type=str,
-      dest='features_dir', default=None, help='The subdirectory (wrt. to output_dir) where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='features_dir', default=None, help='The directory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file, that is prepended by the given output directory and the protocol.')
   parser.add_argument('--plda-dir', metavar='STR', type=str,
-      dest='plda_dir', default=None, help='The subdirectory where the PLDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='plda_dir', default=None, help='The subdirectory where the PLDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file. It is appended to the given output directory and the protocol.')
   parser.add_argument('--plda-model-filename', metavar='STR', type=str,
-      dest='plda_model_filename', default=None, help='The filename of the PLDABase model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='plda_model_filename', default=None, help='The (relative) filename of the PLDABase model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file. It is then appended to the given output directory, the protocol and the plda directory.')
   parser.add_argument('-p', '--protocol', metavar='STR', type=str,
       dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
@@ -60,9 +60,8 @@ def main():
   if args.protocol: protocol = args.protocol
   else: protocol = config.protocol
   # Directories containing the features and the PLDA model
-  if args.features_dir: features_dir_ = args.features_dir
-  else: features_dir_ = config.features_dir
-  features_dir = os.path.join(args.output_dir, protocol, features_dir_)
+  if args.features_dir: features_dir = args.features_dir
+  else: features_dir = os.path.join(args.output_dir, protocol, config.features_dir)
   if args.plda_dir: plda_dir_ = args.plda_dir
   else: plda_dir_ = config.plda_dir
   if args.plda_model_filename: plda_model_filename_ = args.plda_model_filename
@@ -81,7 +80,7 @@ def main():
 
     # Get list of list of filenames to load
     training_filenames = []
-    train_models = sorted([model.id for model in config.db.models(groups='world', protocol=protocol)])
+    train_models = sorted(config.db.model_ids(groups='world', protocol=protocol))
     nfiles = 0
     for model_id in train_models:
       if args.world_nshots != 0: train_data_m = config.db.objects(protocol=protocol, groups='world', model_ids=(model_id,), world_nshots=args.world_nshots) 

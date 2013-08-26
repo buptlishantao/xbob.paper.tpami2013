@@ -17,9 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
-"""Submits all feature creation jobs to the Idiap grid"""
-
 import math
 import os
 import imp
@@ -28,8 +25,7 @@ import argparse
 from .. import utils
 
 def main():
-  """The main entry point, control here the jobs options and other details"""
-
+  """PCA toolchain"""
   # Parses options
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -42,11 +38,11 @@ def main():
   parser.add_argument('--output-dir', metavar='STR', type=str,
       dest='output_dir', default='output', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='STR', type=str,
-      dest='features_dir', default=None, help='The subdirectory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='features_dir', default=None, help='The directory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value \'lbph_features_dir\' in the configuration file, that is prepended by the given output directory and the protocol.')
   parser.add_argument('--pca-dir', metavar='FILE', type=str,
-      dest='pca_dir', default='pca_euclidean', help='The relative directory of the PCA algorithm that will contain the models and the scores.')
+      dest='pca_dir', default='pca_euclidean', help='The relative directory of the PCA algorithm that will contain the models and the scores. It is appended to the given output directory and the protocol.')
   parser.add_argument('--pca-model-filename', metavar='STR', type=str,
-      dest='pca_model_filename', default=None, help='The filename of the PCA model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='pca_model_filename', default=None, help='The (pca) filename of the PCA model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file. It is then appended to the given output directory, the protocol and the pca directory.')
   parser.add_argument('--distance', metavar='STR', type=str,
       dest='distance', default='euclidean', help='The distance to use, when computing scores.')
   parser.add_argument('-p', '--protocol', metavar='STR', type=str,
@@ -65,8 +61,8 @@ def main():
   if args.protocol: protocol = args.protocol
   else: protocol = config.protocol
   # Update command line options if required
-  if not args.features_dir: features_dir = config.lbph_features_dir
-  else: features_dir = args.features_dir
+  if args.features_dir: features_dir = args.features_dir
+  else: features_dir = os.path.join(args.output_dir, protocol, config.lbph_features_dir)
   if not args.pca_dir: pca_dir = config.pca_dir
   else: pca_dir = args.pca_dir
   if args.pca_model_filename: pca_model_filename = args.pca_model_filename
@@ -128,7 +124,7 @@ def main():
   # Generates the models 
   job_enroll = []
   for group in groups:
-    n_array_jobs = len(config.db.models(protocol=protocol, groups=groups))
+    n_array_jobs = len(config.db.model_ids(protocol=protocol, groups=groups))
     cmd_enroll = [
                   './bin/meanmodel_enroll.py',
                   '--config-file=%s' % args.config_file, 
@@ -152,7 +148,7 @@ def main():
   job_scores = []
   for group in groups:
     n_array_jobs = 0
-    model_ids = sorted([model.id for model in config.db.models(protocol=protocol, groups=group)])
+    model_ids = sorted(config.db.model_ids(protocol=protocol, groups=group))
     for model_id in model_ids:
       n_probes_for_model = len(config.db.objects(groups=group, protocol=protocol, purposes='probe', model_ids=(model_id,)))
       n_splits_for_model = int(math.ceil(n_probes_for_model / float(config.n_max_probes_per_job)))

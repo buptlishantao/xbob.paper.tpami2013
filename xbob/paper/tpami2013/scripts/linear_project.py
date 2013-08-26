@@ -25,7 +25,7 @@ import bob
 import numpy
 
 def main():
-
+  """Project features using a trained (either with PCA or LDA) LinearMachine"""
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,
@@ -33,13 +33,13 @@ def main():
   parser.add_argument('--output-dir', metavar='FILE', type=str,
       dest='output_dir', default='output', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='STR', type=str,
-      dest='features_dir', default=None, help='The subdirectory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='features_dir', default=None, help='The directory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file, that is appended to the given output directory and protocol.')
   parser.add_argument('--features-projected-dir', metavar='STR', type=str,
-      dest='features_projected_dir', default=None, help='The subdirectory where the projected features will be stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='features_projected_dir', default=None, help='The subdirectory where the projected features will be stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file. It is then appended to the given output directory, the protocol and the algorithm directory.')
   parser.add_argument('--algorithm-dir', metavar='STR', type=str,
-      dest='algorithm_dir', default='pca', help='The subdirectory where the algorithm data are stored.')
+      dest='algorithm_dir', default='pca', help='The subdirectory where the algorithm data are stored. It is appended to the given output directory and the protocol.')
   parser.add_argument('--model-filename', metavar='STR', type=str,
-      dest='model_filename', default=None, help='The filename of the Linear model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='model_filename', default=None, help='The (relative) filename of the Linear model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file. It is then appended to the given output directory, the protocol and the algorithm directory.')
   parser.add_argument('-p', '--protocol', metavar='STR', type=str,
       dest='protocol', default=None, help='The protocol of the database to consider. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
@@ -54,9 +54,8 @@ def main():
   if args.protocol: protocol = args.protocol
   else: protocol = config.protocol
   # Directories containing the features, the PCA model and the projected features
-  if args.features_dir: features_dir_ = args.features_dir
-  else: features_dir_ = config.features_dir
-  features_dir = os.path.join(args.output_dir, protocol, features_dir_)
+  if args.features_dir: features_dir = args.features_dir
+  else: features_dir = os.path.join(args.output_dir, protocol, config.features_dir)
   if args.features_projected_dir: features_projected_dir_ = args.features_projected_dir
   else: features_projected_dir_ = config.features_projected_dir
   features_projected_dir = os.path.join(args.output_dir, protocol, args.algorithm_dir, features_projected_dir_)

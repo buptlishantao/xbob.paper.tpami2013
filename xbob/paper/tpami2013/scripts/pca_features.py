@@ -24,7 +24,7 @@ import subprocess
 from .. import utils
 
 def main():
-
+  """Reduce the dimensionality of a feature set using PCA"""
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,
@@ -34,13 +34,13 @@ def main():
   parser.add_argument('--output-dir', metavar='FILE', type=str,
       dest='output_dir', default='output', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='STR', type=str,
-      dest='features_dir', default=None, help='The subdirectory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='features_dir', default=None, help='The directory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value \'lbph_features_dir\' in the configuration file, that is prepended by the given output directory and the protocol.')
   parser.add_argument('--features-projected-dir', metavar='STR', type=str,
-      dest='features_projected_dir', default=None, help='The subdirectory where the projected features will be stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='features_projected_dir', default=None, help='The subdirectory where the projected features will be stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file. It is then preprended by the given output directory, the protocol and the pca directory.')
   parser.add_argument('--pca-dir', metavar='STR', type=str,
-      dest='pca_dir', default=None, help='The subdirectory where the PCA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='pca_dir', default=None, help='The subdirectory where the PCA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file. It is appended to the given output directory and the protocol.')
   parser.add_argument('--pca-model-filename', metavar='STR', type=str,
-      dest='pca_model_filename', default=None, help='The filename of the PCA model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='pca_model_filename', default=None, help='The (relative) filename of the PCA model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file. It is then appended to the given output directory, the protocol and the pca directory.')
   parser.add_argument('--eigenvalues', metavar='FILE', type=str,
       dest='eig_filename', default=None, help='The file for storing the eigenvalues.')
   parser.add_argument('-p', '--protocol', metavar='STR', type=str,
@@ -48,7 +48,7 @@ def main():
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
-      default=False, help='It is currently not possible to paralellize this script, and hence useless for the time being.')
+      default=False, help='If set, assumes it will split the jobs on the SGE grid.')
   args = parser.parse_args()
 
   # Loads the configuration 
@@ -60,11 +60,11 @@ def main():
   else: protocol = config.protocol
   # Directories containing the features and the PCA model
   if args.features_dir: features_dir = args.features_dir
-  else: features_dir = config.lbph_features_dir
-  if args.features_projected_dir: features_projected_dir = args.features_projected_dir
-  else: features_projected_dir = config.features_projected_dir
+  else: features_dir = os.path.join(args.output_dir, protocol, config.lbph_features_dir)
   if args.pca_dir: pca_dir = args.pca_dir
   else: pca_dir = config.features_base_dir
+  if args.features_projected_dir: features_projected_dir = args.features_projected_dir
+  else: features_projected_dir = config.features_projected_dir
   if args.pca_model_filename: pca_model_filename = args.pca_model_filename
   else: pca_model_filename = config.model_filename
 

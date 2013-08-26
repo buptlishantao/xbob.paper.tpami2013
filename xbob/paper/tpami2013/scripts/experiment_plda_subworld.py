@@ -17,16 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
-"""Submits all feature creation jobs to the Idiap grid"""
-
+import os
 import subprocess
 import imp
 import argparse
 from .. import utils
 
 def main():
-  """The main entry point, control here the jobs options and other details"""
+  """PLDA experiments required to reproduce Figure 2 of the article"""
 
   # Parses options
   parser = argparse.ArgumentParser(description=__doc__,
@@ -40,11 +38,11 @@ def main():
   parser.add_argument('--output-dir', metavar='STR', type=str,
       dest='output_dir', default='output', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='STR', type=str,
-      dest='features_dir', default=None, help='The subdirectory (wrt. to output_dir) where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='features_dir', default=None, help='The directory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value \'lbph_features_dir\' in the configuration file, that is prepended by the given output directory and the protocol.')
   parser.add_argument('--plda-dir', metavar='STR', type=str,
-      dest='plda_dir', default=None, help='The subdirectory where the PLDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='plda_dir', default=None, help='The subdirectory where the PLDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file. It is appended to the given output directory and the protocol.')
   parser.add_argument('--plda-model-filename', metavar='STR', type=str,
-      dest='plda_model_filename', default=None, help='The filename of the PLDABase model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='plda_model_filename', default=None, help='The (relative) filename of the PLDABase model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file. It is then appended to the given output directory, the protocol and the plda directory.')
   parser.add_argument('-f', '--force', dest='force', action='store_true',
       default=False, help='Force to erase former data if already exist')
   parser.add_argument('--grid', dest='grid', action='store_true',
@@ -60,7 +58,7 @@ def main():
   else: plda_ng = args.ng
   # Directories containing the features and the PLDA model
   if args.features_dir: features_dir = args.features_dir
-  else: features_dir = config.features_dir
+  else: features_dir = os.path.join(args.output_dir, config.protocol, config.features_dir)
   if not args.plda_dir: plda_dir = config.plda_dir
   else: plda_dir = args.plda_dir
   if args.plda_model_filename: plda_model_filename = args.plda_model_filename

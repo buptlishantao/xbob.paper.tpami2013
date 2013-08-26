@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 from .. import utils
 
 def main():
-
+  """Plot Figure 2 of the article, assuming that the required experiments have successfully completed"""
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,

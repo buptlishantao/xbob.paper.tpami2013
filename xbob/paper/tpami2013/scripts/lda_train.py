@@ -23,7 +23,7 @@ import imp
 from .. import linear, utils
 
 def main():
-
+  """Train a LDA model"""
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,
@@ -33,11 +33,11 @@ def main():
   parser.add_argument('--output-dir', metavar='FILE', type=str,
       dest='output_dir', default='output', help='The base output directory for everything (models, scores, etc.).')
   parser.add_argument('--features-dir', metavar='STR', type=str,
-      dest='features_dir', default=None, help='The subdirectory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='features_dir', default=None, help='The subdirectory where the features are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file, that is prepended by the given output directory and the protocol.')
   parser.add_argument('--lda-dir', metavar='STR', type=str,
-      dest='lda_dir', default=None, help='The subdirectory where the LDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='lda_dir', default=None, help='The subdirectory where the LDA data are stored. It will overwrite the value in the configuration file if any. Default is the value in the configuration file. It is appended to the given output directory and the protocol.')
   parser.add_argument('--lda-model-filename', metavar='STR', type=str,
-      dest='lda_model_filename', default=None, help='The filename of the LDA model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file.')
+      dest='lda_model_filename', default=None, help='The (relative) filename of the LDA model. It will overwrite the value in the configuration file if any. Default is the value in the configuration file. It is then appended to the given output directory, the protocol and the algorithm directory.')
   parser.add_argument('--eigenvalues', metavar='FILE', type=str,
       dest='eig_filename', default=None, help='The file for storing the eigenvalues.')
   parser.add_argument('-p', '--protocol', metavar='STR', type=str,
@@ -56,9 +56,8 @@ def main():
   if args.protocol: protocol = args.protocol
   else: protocol = config.protocol
   # Directories containing the features and the LDA model
-  if args.features_dir: features_dir_ = args.features_dir
-  else: features_dir_ = config.features_dir
-  features_dir = os.path.join(args.output_dir, protocol, features_dir_)
+  if args.features_dir: features_dir = args.features_dir
+  else: features_dir = os.path.join(args.output_dir, protocol, config.features_dir)
   if args.lda_dir: lda_dir_ = args.lda_dir
   else: lda_dir_ = config.lda_dir
   if args.lda_model_filename: lda_model_filename_ = args.lda_model_filename
@@ -77,7 +76,7 @@ def main():
 
     # Get list of list of filenames to load
     training_filenames = []
-    train_models = sorted([model.id for model in config.db.models(groups='world', protocol=protocol)])
+    train_models = sorted(config.db.model_ids(groups='world', protocol=protocol))
     nfiles = 0
     for model_id in train_models:
       train_data_m = sorted(config.db.objects(protocol=protocol, groups='world', model_ids=(model_id,)), key=lambda f: f.path)

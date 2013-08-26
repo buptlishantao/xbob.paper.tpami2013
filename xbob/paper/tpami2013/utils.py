@@ -171,7 +171,10 @@ def save_scores_to_textfile(scores, probe_filenames, model_id, output_filename, 
   else: f_scores = open(output_filename, 'w')
   i = 0 
   for x in probe_filenames:
-    f_scores.write(str(x.client_id) + " " + str(model_id) + " " + str(x.path) + " " + str(scores[i]) + "\n")
+    if hasattr(x, 'claimed_id'):
+      f_scores.write(str(x.claimed_id) + " " + str(model_id) + " " + str(x.path) + " " + str(scores[i]) + "\n")
+    else:
+      f_scores.write(str(x.client_id) + " " + str(model_id) + " " + str(x.path) + " " + str(scores[i]) + "\n")
     i+=1
   f_scores.close()
 

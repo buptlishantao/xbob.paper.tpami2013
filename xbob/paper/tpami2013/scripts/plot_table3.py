@@ -23,7 +23,7 @@ import argparse
 from .. import utils
 
 def main():
-
+  """Plot Table 3 of the article, assuming that the required experiments have successfully completed"""
   parser = argparse.ArgumentParser(description=__doc__,
       formatter_class=argparse.RawDescriptionHelpFormatter)
   parser.add_argument('-c', '--config-file', metavar='FILE', type=str,

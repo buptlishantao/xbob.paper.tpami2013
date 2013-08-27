@@ -260,9 +260,9 @@ We provide the following script for this purpose::
   could split this script into several shorter jobs, by splitting the
   loop below, which is equivalent to the previous command::
 
-  $ for k in `seq 1 10`; do \
-      ./bin/toolchain_pcaplda.py --features-dir /PATH/TO/LFW/DATABASE/lfw_funneled --protocol view2-fold${k} --output-dir /PATH/TO/LFW/OUTPUT_DIR/ ; \
-    done
+    $ for k in `seq 1 10`; do \
+        ./bin/toolchain_pcaplda.py --features-dir /PATH/TO/LFW/DATABASE/lfw_funneled --protocol view2-fold${k} --output-dir /PATH/TO/LFW/OUTPUT_DIR/ ; \
+      done
 
 
 Summarizing the results as in Table 2

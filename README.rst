@@ -2,7 +2,7 @@
 Probabilistic Linear Discriminant Analysis Experiments
 ======================================================
 
-This package contains scripts that shows how to use the implementation
+This package contains scripts that show how to use the implementation
 of the scalable formulation of Probabilistic Linear Discriminant Analysis 
 (PLDA), integrated into `Bob <http://www.idiap.ch/software/bob>`_, as 
 well as how to reproduce experiments of the article mentioned below. 
@@ -99,6 +99,7 @@ operational on your computer: you can use automatic installers like `pip
 use `zc.buildout <http://pypi.python.org/pypi/zc.buildout>`_ to create a
 virtual work environment just for this package.
 
+
 Using an automatic installer
 ============================
 
@@ -117,6 +118,7 @@ is compatible.
 This scheme works well with virtual environments by `virtualenv
 <http://pypi.python.org/pypi/virtualenv>`_ or if you have root access to your
 machine. Otherwise, we recommend you use the next option.
+
 
 Using ``zc.buildout``
 =====================
@@ -190,7 +192,7 @@ and the HTER reported on Table 3 can be easily reproduced, by
 following the steps described below.
 
 Be aware that all the scripts provide several optional arguments that
-are very useful if you wish at using your own features or your own
+are very useful if you wish to use your own features or your own
 parameters.
 
 Keep in mind that the results published in the paper were obtained with
@@ -228,32 +230,48 @@ funneling algorithm.
 Getting the features and converting them into HDF5 format
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following command will download a tarball with the features, extract
-it and convert them into the suitable HDF5 format for Bob::
+The following command will download a tarball with the SIFT features, 
+extract the content of the archive and convert the features into a 
+suitable HDF5 format for Bob::
 
   $ ./bin/lfw_features.py --output-dir /PATH/TO/LFW/DATABASE/
 
 
-Running the PCA+PLDA toolchain on LFW
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PCA+PLDA toolchain on LFW
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following command will run the PCA+PLDA toolchain on the specified 
-protocol::
+Once the features have been extracted, the dimensionality is reduced
+using Principal Component Analysis (PCA), before applying PLDA modeling.
+These steps are combined in the following script, that will run the 
+PCA+PLDA toolchain on the specified protocol::
 
   $ ./bin/toolchain_pcaplda.py --features-dir /PATH/TO/LFW/DATABASE/lfw_funneled --protocol view1 --output-dir /PATH/TO/LFW/OUTPUT_DIR/
 
-If you want to run the experiments on the 10 protocols of view2, you
-can use the following command::
+To report the final performance on LFW, it is required to run 
+10 experiments on view 2 in a leave-one-out cross validation scheme.
+We provide the following script for this purpose::
 
   $ ./bin/experiment_pcaplda_lfw.py -features-dir /PATH/TO/LFW/DATABASE/lfw_funneled --output-dir /PATH/TO/LFW/OUTPUT_DIR/
+
+.. note::
+
+  The previous script is monothreaded and will run the 10 independent
+  view 2 experiments in a sequence. If you have a multi-core CPU, you
+  could split this script into several shorter jobs, by splitting the
+  loop below, which is equivalent to the previous command::
+
+  $ for k in `seq 1 10`; do \
+      ./bin/toolchain_pcaplda.py --features-dir /PATH/TO/LFW/DATABASE/lfw_funneled --protocol view2-fold${k} --output-dir /PATH/TO/LFW/OUTPUT_DIR/ ; \
+    done
 
 
 Summarizing the results as in Table 2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Once the previous experiments have successfully completed, you can use 
-the following script to plot Table 2, that will estimate the average
-accuracy on the 10 folds of LFW view2::
+the following script to plot Table 2, that will estimate the mean
+accuracy as wekk as tge standard error of the mean on the 10 experiments
+of LFW view2::
 
   $ ./bin/plot_table2.py --output-dir /PATH/TO/LFW/OUTPUT_DIR/
 
@@ -262,8 +280,8 @@ accuracy on the 10 folds of LFW view2::
   Compared to the results published in the article, there are slight
   differences caused by both the order of the training files when applying
   PCA, and the lists used to split the LFW `training` set into a `training`
-  set and a `validation` set (selection of the verification threshold to
-  apply on the test set).
+  set and a `validation` set (The validation set is use to select the 
+  verification threshold to apply on the test set).
 
 
 Multi-PIE dataset
@@ -272,6 +290,7 @@ Multi-PIE dataset
 The experiments of this section are performed on the U protocol of the
 Multi-PIE dataset. The filelists associated with this protocol can be found
 on `this website <http://www.idiap.ch/resource/biometric>`_.
+
 
 Getting the data
 ~~~~~~~~~~~~~~~~
@@ -285,8 +304,9 @@ and to download the annotations available here:
 Feature extraction
 ~~~~~~~~~~~~~~~~~~
 
-The following command will extract LBP histograms features.
-You should set the paths to the data according to your own environment::
+The following command will extract Local Binary Patters (LBP) histograms 
+features. You should set the paths to the data according to your own 
+environment::
 
   $ ./bin/lbph_features.py --image-dir /PATH/TO/MULTIPIE/IMAGES --annotation-dir /PATH/TO/MULTIPIE/ANNOTATIONS --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
@@ -452,9 +472,9 @@ Baseline 2: LDA on the PCA projected LBP histograms
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The PCA projected LBP histogram features considered for the PLDA system
-were also used in combination with the Fisher's LDA classification 
-technique (commonly called Fisherfaces in the face recognition 
-literature).
+were also used in combination with the Fisher's Linear Discriminant 
+Analysis (LDA) classification technique (commonly called Fisherfaces 
+in the face recognition literature).
 
 This involves three different steps:
   1. LDA subspace training

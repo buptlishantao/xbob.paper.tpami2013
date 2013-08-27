@@ -9,6 +9,11 @@ well as how to reproduce experiments of the article mentioned below.
 It is implemented and maintained via `github 
 <http://www.github.com/bioidiap/xbob.paper.tpami2013>`_.
 
+.. contents::
+
+References
+----------
+
 If you use this package and/or its results, please cite the following
 publications:
 
@@ -40,23 +45,23 @@ publications:
       url = {http://publications.idiap.ch/downloads/papers/2012/Anjos_Bob_ACMMM12.pdf},
     }
 
-3. If you decide to use the Multi-PIE database, you should also mention the
+3. If you decide to use the Multi-PIE database, you should mention the
    following paper, where it is introduced::
 
     @article{Gross_IVC_2010,
-     author = {Gross, Ralph and Matthews, Iain and Cohn, Jeffrey and Kanade, Takeo and Baker, Simon},
-     title = {Multi-PIE},
-     journal = {Image and Vision Computing},
-     year = {2010},
-     month = may,
-     volume = {28},
-     number = {5},
-     issn = {0262-8856},
-     pages = {807--813},
-     numpages = {7},
-     doi = {10.1016/j.imavis.2009.08.002},
-     url = {http://dx.doi.org/10.1016/j.imavis.2009.08.002},
-     acmid = {1747071},
+      author = {Gross, Ralph and Matthews, Iain and Cohn, Jeffrey and Kanade, Takeo and Baker, Simon},
+      title = {Multi-PIE},
+      journal = {Image and Vision Computing},
+      year = {2010},
+      month = may,
+      volume = {28},
+      number = {5},
+      issn = {0262-8856},
+      pages = {807--813},
+      numpages = {7},
+      doi = {10.1016/j.imavis.2009.08.002},
+      url = {http://dx.doi.org/10.1016/j.imavis.2009.08.002},
+      acmid = {1747071},
     } 
 
 4. If you only use the Multi-PIE annotations, you should cite the following paper
@@ -75,8 +80,17 @@ publications:
       pdf = {http://publications.idiap.ch/downloads/papers/2013/ElShafey_TPAMI_2013.pdf}
     }
 
+5. If you decide to use the Labeled Faces in the Wild (LFW) database, you should 
+   mention the following paper, where it is introduced::
 
-.. contents::
+    @TechReport{LFWTech,
+      author = {Gary B. Huang and Manu Ramesh and Tamara Berg and Erik Learned-Miller},
+      title = {Labeled Faces in the Wild: A Database for Studying Face Recognition in Unconstrained Environments},
+      institution = {University of Massachusetts, Amherst},
+      year = {2007},
+      number = {07-49},
+      month =  oct,
+    }
 
 
 Installation
@@ -97,7 +111,10 @@ operational on your computer: you can use automatic installers like `pip
 <http://pypi.python.org/pypi/pip/>`_ (or `easy_install
 <http://pypi.python.org/pypi/setuptools>`_) or manually download, unpack and
 use `zc.buildout <http://pypi.python.org/pypi/zc.buildout>`_ to create a
-virtual work environment just for this package.
+virtual work environment just for this package. In both cases, you must
+first install `Bob`_ (>= 1.2.0), whose installation process is described 
+in the `user guide 
+<http://www.idiap.ch/software/bob/docs/releases/last/sphinx/html/Installation.html>`_.
 
 
 Using an automatic installer
@@ -127,9 +144,9 @@ Download the latest version of this package from `PyPI
 <http://pypi.python.org/pypi/xbob.paper.tpami2013>`_ and unpack it in your
 working area::
 
-  $ wget http://pypi.python.org/packages/source/x/xbob.paper.tpami2013/xbob.paper.tpami2013-0.3.0a1.zip
-  $ unzip xbob.paper.tpami2013-0.3.0a1.zip
-  $ cd xbob.paper.tpami2013-0.3.0a1
+  $ wget http://pypi.python.org/packages/source/x/xbob.paper.tpami2013/xbob.paper.tpami2013-0.3.0a2.zip
+  $ unzip xbob.paper.tpami2013-0.3.0a2.zip
+  $ cd xbob.paper.tpami2013-0.3.0a2
 
 The installation of the toolkit itself uses `buildout 
 <http://www.buildout.org/>`_. You don't need to understand its inner workings
@@ -140,8 +157,6 @@ to use this package. Here is a recipe to get you started::
 
 These two commands should download and install all non-installed dependencies and
 get you a fully operational test and development environment.
-
-Please note that this package also requires that bob (>= 1.2.0) is installed.
 
 .. note::
 
@@ -169,8 +184,8 @@ PLDA tutorial
 -------------
 
 The following example consists of a simple script, that makes use of
-PLDA modeling on the Fisher's iris dataset. It performs the following
-tasks:
+Probabilistic Linear Discriminant Analysis (PLDA) modeling on the 
+Fisher's iris dataset. It performs the following tasks:
 
   1. Train a PLDA model using the first two classes of the dataset
   2. Enroll a class-specific PLDA model for the third class of the dataset
@@ -185,10 +200,10 @@ To run this simple example, you just need to execute the following command::
 Reproducing experiments
 -----------------------
 
-It is currently possible to reproduce the experiments on both Labeled
-Faces in the Wild and Multi-PIE using the PLDA algorithm. In 
-particular, the value of the accuracy reported in Table 2, the Figure 2 
-and the HTER reported on Table 3 can be easily reproduced, by 
+It is currently possible to reproduce all the experiments of the article
+on both Labeled Faces in the Wild and Multi-PIE using the PLDA algorithm.
+In particular, the value of the accuracy reported in Table 2, the 
+Figure 2 and the HTER reported on Table 3 can be easily reproduced, by 
 following the steps described below.
 
 Be aware that all the scripts provide several optional arguments that
@@ -258,7 +273,8 @@ We provide the following script for this purpose::
   The previous script is monothreaded and will run the 10 independent
   view 2 experiments in a sequence. If you have a multi-core CPU, you
   could split this script into several shorter jobs, by splitting the
-  loop below, which is equivalent to the previous command::
+  loop below, which will at the end be equivalent to the previous 
+  command::
 
     $ for k in `seq 1 10`; do \
         ./bin/toolchain_pcaplda.py --features-dir /PATH/TO/LFW/DATABASE/lfw_funneled --protocol view2-fold${k} --output-dir /PATH/TO/LFW/OUTPUT_DIR/ ; \
@@ -270,7 +286,7 @@ Summarizing the results as in Table 2
 
 Once the previous experiments have successfully completed, you can use 
 the following script to plot Table 2, that will estimate the mean
-accuracy as wekk as tge standard error of the mean on the 10 experiments
+accuracy as well as the standard error of the mean on the 10 experiments
 of LFW view2::
 
   $ ./bin/plot_table2.py --output-dir /PATH/TO/LFW/OUTPUT_DIR/
@@ -376,12 +392,6 @@ following commands (instead of the previous one)::
   $ ./bin/experiment_plda_subworld.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
   $ ./bin/plot_figure2.py --output-dir /PATH/TO/MULTIPIE/OUTPUT_DIR/
 
-Then, the value of the HTER on Table 3 of the article (for the PLDA system) 
-corresponds to the one, where the full training set is used, and might 
-similarly be obtained as follows::
-
-  $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/plda_subworld_76/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/plda_subworld_76/scores/scores-eval -x
-
 .. note::
 
   Equivalently, this can also be achieved by running the following 
@@ -399,6 +409,12 @@ The previous commands will run the PLDA toolchain several times for a varying
 number of training samples. Please note, that this will require a lot of time
 to complete (a bit less than two days on a recent workstation such as one with an
 Intel Core i7 CPU).
+
+Then, the value of the HTER on Table 3 of the article (for the PLDA system) 
+corresponds to the one, where the full training set is used, and might 
+similarly be obtained as follows::
+
+  $ ./bin/bob_compute_perf.py -d /PATH/TO/MULTIPIE/OUTPUT_DIR/U/plda_subworld_76/scores/scores-dev -t /PATH/TO/MULTIPIE/OUTPUT_DIR/U/plda_subworld_76/scores/scores-eval -x
 
 .. note::
 

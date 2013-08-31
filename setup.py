@@ -22,12 +22,13 @@ from setuptools import setup, find_packages
 setup(
 
     name='xbob.paper.tpami2013',
-    version='0.3.0a1',
+    version='1.0.0a0',
     description='Example on how to use the scalable implementation of PLDA and how to reproduce experiments of the article',
     url='http://pypi.python.org/pypi/xbob.paper.tpami2013',
     license='GPLv3',
     author='Laurent El Shafey',
     author_email='Laurent.El-Shafey@idiap.ch',
+    keywords='plda, probalistic linear discriminant analysis, machine learning, face recognition, bob, xbob',
     long_description=open('README.rst').read(),
 
     packages=find_packages(),
@@ -78,8 +79,10 @@ setup(
     ],
 
     classifiers = [
-      'Development Status :: 4 - Beta',
+      'Development Status :: 5 - Production/Stable',
+      'Environment :: Console',
       'Intended Audience :: Education',
+      'Intended Audience :: Science/Research',
       'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
       'Natural Language :: English',
       'Programming Language :: Python',
